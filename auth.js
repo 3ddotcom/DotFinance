@@ -63,3 +63,33 @@ async function signOut() {
 
     window.location.href = "index.html";
 }
+
+async function createProfile(user) {
+    if (!user || !user.id) {
+        console.error("Usuário inválido para criar perfil.");
+        return false;
+    }
+
+    const profile = {
+        id: user.id,
+        email: user.email,
+        name:
+            user.user_metadata?.name ||
+            user.user_metadata?.full_name ||
+            user.email?.split("@")[0],
+        updated_at: new Date().toISOString()
+    };
+
+    const { error } = await window.supabaseClient
+        .from("profiles")
+        .upsert(profile, {
+            onConflict: "id"
+        });
+
+    if (error) {
+        console.error("Erro ao criar perfil:", error);
+        return false;
+    }
+
+    return true;
+}

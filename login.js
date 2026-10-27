@@ -64,6 +64,8 @@ loginForm.addEventListener(
 
             if (data.user) {
 
+                await createProfile(data.user);
+
                 window.location.href =
                     "app.html";
             }

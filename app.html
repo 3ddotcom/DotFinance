@@ -33,7 +33,9 @@
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/extrato.css">
 <link rel="stylesheet" href="css/settings.css">
-```
+<link rel="stylesheet" href="css/budgets.css">
+<link rel="stylesheet" href="css/neon-theme.css">
+
 
 </head>
 
@@ -41,7 +43,6 @@
 
 <div class="app-layout">
 
-```
 <!-- SIDEBAR -->
 <aside class="sidebar">
 
@@ -101,6 +102,14 @@
         </a>
 
         <button
+        class="nav-item" 
+        data-page="budgets"
+        type="button">
+    <span>◎</span>
+    Orçamentos
+</button>
+
+        <button
             class="nav-item"
             data-page="reports"
             type="button"
@@ -130,6 +139,8 @@
             <span>↪</span>
             Sair
         </button>
+
+
 
     </div>
 
@@ -770,6 +781,96 @@
 
         </section>
 
+    </section>
+
+    <!-- ORÇAMENTOS -->
+    <section id="budgetsPage" class="page">
+        <div class="page-header">
+            <div>
+                <h1>Orçamentos</h1>
+                <p>Defina limites mensais e acompanhe os gastos por categoria.</p>
+            </div>
+        </div>
+
+        <div class="budgets-summary">
+            <article class="budget-summary-card">
+                <span>Limites planejados</span>
+                <strong id="budgetsTotalLimit">R$ 0,00</strong>
+                <small>Total dos orçamentos do mês selecionado</small>
+            </article>
+            <article class="budget-summary-card">
+                <span>Total gasto nas categorias orçadas</span>
+                <strong id="budgetsTotalSpent">R$ 0,00</strong>
+                <small>Somente gastos das categorias com orçamento</small>
+            </article>
+            <article class="budget-summary-card">
+                <span>Saldo dos limites</span>
+                <strong id="budgetsTotalRemaining">R$ 0,00</strong>
+                <small id="budgetsAlertCount">Nenhum alerta</small>
+            </article>
+        </div>
+
+        <div class="budgets-layout">
+            <section class="budget-panel">
+                <div class="budget-panel-header">
+                    <div>
+                        <h2>Seus limites</h2>
+                        <p>O progresso é calculado com os gastos registrados no mês.</p>
+                    </div>
+                    <div class="budget-month-filter">
+                        <label for="budgetsMonthFilter">Mês</label>
+                        <input type="month" id="budgetsMonthFilter">
+                    </div>
+                </div>
+                <div id="budgetsList" class="budget-list">
+                    <div class="budget-empty">Carregando orçamentos...</div>
+                </div>
+                <div class="budget-alert-line">
+                    Os alertas são visuais: amarelo ao atingir o percentual configurado e vermelho quando o limite é ultrapassado.
+                </div>
+            </section>
+
+            <section class="budget-panel">
+                <div class="budget-panel-header">
+                    <div>
+                        <h3 id="budgetFormHeading">Novo orçamento</h3>
+                        <p>Um limite por categoria e por mês.</p>
+                    </div>
+                </div>
+                <form id="budgetForm" class="budget-form">
+                    <input type="hidden" id="budgetId">
+                    <div class="budget-form-field">
+                        <label for="budgetCategory">Categoria de gasto</label>
+                        <select id="budgetCategory" required>
+                            <option value="">Carregando categorias...</option>
+                        </select>
+                    </div>
+                    <div class="budget-form-field">
+                        <label for="budgetMonth">Mês do orçamento</label>
+                        <input type="month" id="budgetMonth" required>
+                    </div>
+                    <div class="budget-form-field">
+                        <label for="budgetLimit">Limite mensal (R$)</label>
+                        <input type="number" id="budgetLimit" min="0.01" step="0.01" placeholder="Ex.: 1500,00" required>
+                    </div>
+                    <div class="budget-form-field">
+                        <label for="budgetThreshold">Alertar ao utilizar</label>
+                        <select id="budgetThreshold">
+                            <option value="50">50% do limite</option>
+                            <option value="70">70% do limite</option>
+                            <option value="80" selected>80% do limite</option>
+                            <option value="90">90% do limite</option>
+                            <option value="100">100% do limite</option>
+                        </select>
+                    </div>
+                    <p id="budgetFormMessage" class="budget-form-message" aria-live="polite"></p>
+                    <div class="budget-form-actions">
+                        <button type="submit" id="budgetSave" class="primary-button">Criar orçamento</button>
+                        <button type="button" id="budgetCancelEdit" class="secondary-button" hidden>Cancelar edição</button>
+                    </div>
+                </form>
+            </section>
+        </div>
     </section>
 
 
@@ -1540,11 +1641,15 @@
 
 <script src="js/auth.js"></script>
 
+<script src="js/budgets.js"></script>
+
 <script src="js/app.js"></script>
 
 <script src="js/import-extrato.js"></script>
 
 <script src="js/settings.js"></script>
+
+
 
 </body>
 </html>

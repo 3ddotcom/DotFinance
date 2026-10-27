@@ -32,6 +32,7 @@ async function initApp() {
         setupExpensesPage();
         setupIncomeModal();
         setupLogout();
+        setupBudgets();
 
         await loadCategories();
         await loadIncomeCategories();
@@ -47,6 +48,7 @@ async function initApp() {
             error
         );
     }
+    
 }
 
 
@@ -130,6 +132,7 @@ async function changePage(page) {
             "active-page"
         );
     }
+    
 
     document
         .querySelectorAll(
@@ -166,7 +169,12 @@ async function changePage(page) {
         settings: [
             "Configurações",
             "Configurações da conta"
-        ]
+        ],
+
+        budgets: [
+        "Orçamentos",
+        "Limites mensais e akertas por categoria"
+        ],
     };
 
     if (titles[page]) {
@@ -198,6 +206,10 @@ async function changePage(page) {
     if (page === "expenses") {
         await loadExpensesPage();
     }
+
+    if (page === "budgets") {
+    await loadBudgetsPage();
+}
 }
 
 
@@ -3120,62 +3132,6 @@ function closeIncomeModal() {
 
     modal.classList.remove(
         "open"
-    );
-}
-
-function renderIncomePieChart(incomes) {
-    const container = document.getElementById("incomePieChart");
-
-    if (!container) return;
-
-    if (!incomes || incomes.length === 0) {
-        renderFinancialPieEmpty(
-            container,
-            "Nenhuma entrada no período"
-        );
-        return;
-    }
-
-    const grouped = {};
-
-    incomes.forEach((income) => {
-        const categoryName =
-            income.category_name ||
-            income.category?.name ||
-            "Sem categoria";
-
-        const amount = Number(income.amount) || 0;
-
-        grouped[categoryName] =
-            (grouped[categoryName] || 0) + amount;
-    });
-
-    const data = Object.entries(grouped)
-        .map(([name, value]) => ({
-            name,
-            value
-        }))
-        .filter((item) => item.value > 0)
-        .sort((a, b) => b.value - a.value);
-
-    if (!data.length) {
-        renderFinancialPieEmpty(
-            container,
-            "Nenhuma entrada no período"
-        );
-        return;
-    }
-
-    const total = data.reduce(
-        (sum, item) => sum + item.value,
-        0
-    );
-
-    renderFinancialPie(
-        container,
-        data,
-        total,
-        "Entradas"
     );
 }
 

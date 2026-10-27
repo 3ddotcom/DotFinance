@@ -1,0 +1,463 @@
+/* =========================================================
+   DOT FINANCE — NEON TECHNOLOGY THEME
+   Shared visual layer. Load AFTER the page's other stylesheets.
+   Preserves existing HTML, JavaScript, Supabase and data behavior.
+   ========================================================= */
+
+:root {
+    color-scheme: dark;
+    --background: #070d0b;
+    --background-soft: #0b1511;
+    --sidebar-background: rgba(8, 17, 13, .97);
+    --card-background: #101c16;
+    --card-background-soft: #0c1711;
+    --surface: #101b15;
+    --border: rgba(145, 255, 188, .10);
+    --border-color: rgba(145, 255, 188, .10);
+    --border-hover: rgba(73, 255, 147, .34);
+    --text-primary: #effff4;
+    --text-secondary: #c1d8c9;
+    --text-muted: #8aa494;
+    --text-faint: #627b6b;
+    --primary: #54ff9f;
+    --primary-soft: rgba(84, 255, 159, .11);
+    --primary-border: rgba(84, 255, 159, .30);
+    --success: #54ff9f;
+    --danger: #ff718b;
+    --warning: #ffd166;
+    --radius-sm: 9px;
+    --radius-md: 13px;
+    --radius-lg: 17px;
+    --radius-xl: 22px;
+    --shadow-card: 0 12px 32px rgba(0, 0, 0, .20);
+    --shadow-elevated: 0 26px 70px rgba(0, 0, 0, .50), 0 0 32px rgba(84, 255, 159, .07);
+}
+
+html { background: var(--background); }
+body {
+    background:
+        radial-gradient(ellipse at 76% -12%, rgba(39, 255, 133, .105), transparent 32%),
+        radial-gradient(ellipse at 8% 88%, rgba(0, 190, 120, .055), transparent 32%),
+        linear-gradient(135deg, #070d0b 0%, #09120e 52%, #07100c 100%);
+    color: var(--text-primary);
+}
+
+/* Navigation */
+.sidebar {
+    background: linear-gradient(180deg, rgba(10, 23, 16, .98), rgba(6, 14, 10, .99));
+    border-right-color: rgba(115, 255, 165, .12);
+    box-shadow: 12px 0 45px rgba(0, 0, 0, .20), 1px 0 24px rgba(54, 255, 136, .025);
+}
+.brand-icon {
+    color: var(--primary);
+    border-color: rgba(84, 255, 159, .32);
+    background: linear-gradient(145deg, rgba(84, 255, 159, .18), rgba(84, 255, 159, .035));
+    box-shadow: inset 0 0 18px rgba(84, 255, 159, .045), 0 0 22px rgba(84, 255, 159, .06);
+}
+.brand:hover .brand-icon {
+    border-color: rgba(84, 255, 159, .60);
+    box-shadow: 0 0 26px rgba(84, 255, 159, .14);
+}
+.nav-item { border-radius: 11px; min-height: 45px; }
+.nav-item:hover {
+    color: #e8fff0;
+    background: rgba(84, 255, 159, .055);
+    border-color: rgba(84, 255, 159, .12);
+}
+.nav-item.active {
+    color: #f2fff6;
+    background: linear-gradient(95deg, rgba(84, 255, 159, .15), rgba(84, 255, 159, .045));
+    border-color: rgba(84, 255, 159, .20);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 0 20px rgba(84, 255, 159, .025);
+}
+.nav-item.active::before {
+    background: var(--primary);
+    box-shadow: 0 0 12px rgba(84, 255, 159, .7), 0 0 24px rgba(84, 255, 159, .24);
+}
+.nav-item.active span { filter: drop-shadow(0 0 7px rgba(84, 255, 159, .38)); }
+
+/* Page hierarchy and surfaces */
+.main-content { padding-top: 34px; }
+.topbar { margin-bottom: 32px; }
+.topbar h1 { letter-spacing: -.8px; }
+.topbar p { color: var(--text-muted); }
+.page-header, .page-actions { gap: 18px; }
+.summary-card,
+.panel,
+.investment-summary-card,
+.investment-panel,
+.budget-summary-card,
+.budget-panel,
+.expense-summary-card,
+.import-extrato-panel,
+.settings-card,
+.settings-panel {
+    border-color: var(--border) !important;
+    background-color: rgba(15, 28, 20, .88) !important;
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.summary-card,
+.investment-summary-card {
+    background: linear-gradient(145deg, rgba(84,255,159,.045), rgba(255,255,255,.012) 48%, rgba(255,255,255,.006)), var(--surface) !important;
+}
+.summary-card::before,
+.investment-summary-card::before {
+    background: linear-gradient(90deg, transparent, rgba(84,255,159,.78), transparent) !important;
+}
+.summary-card::after,
+.investment-summary-card::after {
+    background: radial-gradient(circle, rgba(84,255,159,.13), transparent 70%) !important;
+}
+.summary-card:hover,
+.panel:hover,
+.investment-summary-card:hover,
+.investment-panel:hover,
+.budget-panel:hover {
+    border-color: rgba(84,255,159,.26) !important;
+    box-shadow: 0 16px 36px rgba(0,0,0,.24), 0 0 24px rgba(84,255,159,.035);
+}
+.panel-header { border-bottom-color: var(--border); }
+
+/* Inputs and controls */
+input, select, textarea,
+.budget-month-filter input,
+.budget-form input,
+.budget-form select {
+    color: var(--text-primary);
+    background-color: rgba(5, 14, 9, .72);
+    border-color: rgba(145, 255, 188, .15);
+    border-radius: 11px;
+}
+input:hover, select:hover, textarea:hover {
+    border-color: rgba(84, 255, 159, .28);
+}
+input:focus, select:focus, textarea:focus,
+.budget-month-filter input:focus,
+.budget-form input:focus,
+.budget-form select:focus {
+    outline: none;
+    border-color: rgba(84, 255, 159, .70) !important;
+    box-shadow: 0 0 0 3px rgba(84, 255, 159, .10), 0 0 18px rgba(84, 255, 159, .045);
+}
+input::placeholder, textarea::placeholder { color: #668070; }
+
+button, .button, .btn, [role="button"] { transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid rgba(84, 255, 159, .85);
+    outline-offset: 3px;
+}
+button:not(.nav-item):not(.logout-button):hover {
+    border-color: rgba(84, 255, 159, .28);
+}
+.month-selector button:hover {
+    border-color: rgba(84, 255, 159, .42);
+    background: rgba(84, 255, 159, .075);
+}
+
+/* Tables, separators, status */
+table { border-color: var(--border); }
+th { color: #b9d8c5; }
+td, th { border-color: var(--border); }
+tr:hover td { background: rgba(84, 255, 159, .025); }
+hr { border-color: var(--border); }
+::selection { color: #031109; background: rgba(84, 255, 159, .78); }
+
+/* Investments */
+.investment-modal-content,
+.investment-modal .form-group input,
+.investment-modal .form-group select,
+.investment-modal .form-group textarea {
+    background-color: #0d1912;
+    border-color: rgba(145, 255, 188, .15);
+}
+.investment-modal .form-group input:focus,
+.investment-modal .form-group select:focus,
+.investment-modal .form-group textarea:focus {
+    border-color: rgba(84, 255, 159, .70);
+    box-shadow: 0 0 0 3px rgba(84, 255, 159, .09);
+}
+.investment-movement-button,
+.investment-edit-button { border-color: rgba(84, 255, 159, .17); }
+
+/* Budgets */
+.budget-summary-card, .budget-panel {
+    background: linear-gradient(145deg, rgba(84,255,159,.035), rgba(255,255,255,.008)), #0f1b14 !important;
+}
+.budget-progress, .budget-progress-bar, .budget-progress-fill { border-radius: 999px; }
+
+/* Login page */
+.login-page { background: transparent; }
+.login-card {
+    background: linear-gradient(145deg, rgba(15, 30, 21, .97), rgba(8, 17, 12, .98));
+    border-color: rgba(84, 255, 159, .16);
+    box-shadow: 0 24px 70px rgba(0,0,0,.45), 0 0 34px rgba(84,255,159,.055);
+}
+.logo-dot { color: var(--primary); text-shadow: 0 0 18px rgba(84,255,159,.42); }
+.field label { color: var(--text-secondary); }
+.field input {
+    color: var(--text-primary);
+    background: rgba(5, 14, 9, .8);
+    border-color: rgba(145,255,188,.16);
+}
+.field input:focus {
+    border-color: rgba(84,255,159,.72);
+    box-shadow: 0 0 0 3px rgba(84,255,159,.10);
+}
+.login-card button, .login-button, #loginButton, #registerButton {
+    background: linear-gradient(110deg, #54ff9f, #27df83);
+    color: #062111;
+    border: 1px solid rgba(132,255,184,.55);
+    box-shadow: 0 7px 22px rgba(39,223,131,.13);
+}
+.login-card button:hover, .login-button:hover, #loginButton:hover, #registerButton:hover {
+    background: linear-gradient(110deg, #7dffb4, #42f596);
+    box-shadow: 0 9px 28px rgba(39,223,131,.22);
+    transform: translateY(-1px);
+}
+
+/* Responsive finishing touches */
+@media (max-width: 1100px) {
+    .main-content { padding-left: 28px; padding-right: 28px; }
+}
+@media (max-width: 850px) {
+    .main-content { padding: 24px 18px 36px; }
+    .topbar { align-items: flex-start; gap: 14px; margin-bottom: 24px; }
+    .topbar h1 { font-size: 23px; }
+    .summary-card, .investment-summary-card, .budget-summary-card { padding: 17px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* =========================================================
+   DASHBOARD REFINEMENT — FOUR METRICS + NEON CHARTS
+   Visual-only overrides; keeps existing HTML and behavior.
+   ========================================================= */
+
+/* Use the available width for all four dashboard indicators. */
+.cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+}
+
+.cards .summary-card {
+    min-width: 0;
+    padding: 20px;
+}
+
+.cards .summary-card h3,
+.cards .summary-card .summary-label {
+    overflow-wrap: anywhere;
+}
+
+/* Chart panels share a consistent surface and spacing. */
+.chart-panel,
+.panel.chart-panel {
+    min-width: 0;
+    border: 1px solid rgba(145, 255, 188, .10);
+    background: linear-gradient(145deg, rgba(84,255,159,.025), rgba(255,255,255,.008)), rgba(15,28,20,.88);
+    box-shadow: 0 12px 32px rgba(0,0,0,.20);
+}
+
+.category-chart {
+    min-width: 0;
+    align-items: center;
+}
+
+.pie-chart-wrapper {
+    filter: drop-shadow(0 0 15px rgba(84,255,159,.035));
+}
+
+.pie-background {
+    fill: none;
+    stroke: rgba(145,255,188,.075);
+    stroke-width: 42;
+}
+
+.financial-pie-segment {
+    transition: opacity .18s ease, stroke-width .18s ease, filter .18s ease;
+}
+
+.financial-pie-segment.active {
+    filter: drop-shadow(0 0 5px currentColor);
+    stroke-width: 47;
+}
+
+.financial-pie-segment.inactive {
+    opacity: .35;
+}
+
+/* Harmonized category colors: greens, mint and teal, with warm accents. */
+#categoryPieChart .financial-pie-segment:nth-of-type(2) { stroke: #54ff9f !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(3) { stroke: #27dfb3 !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(4) { stroke: #20c997 !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(5) { stroke: #a3ffbf !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(6) { stroke: #b7f34a !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(7) { stroke: #ffd166 !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(8) { stroke: #ff9f6e !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(9) { stroke: #ff718b !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(10) { stroke: #65d6ce !important; }
+#categoryPieChart .financial-pie-segment:nth-of-type(11) { stroke: #8bdc65 !important; }
+
+#incomePieChart .financial-pie-segment:nth-of-type(2) { stroke: #54ff9f !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(3) { stroke: #27dfb3 !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(4) { stroke: #20c997 !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(5) { stroke: #a3ffbf !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(6) { stroke: #b7f34a !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(7) { stroke: #65d6ce !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(8) { stroke: #8bdc65 !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(9) { stroke: #ffd166 !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(10) { stroke: #ffb86b !important; }
+#incomePieChart .financial-pie-segment:nth-of-type(11) { stroke: #ff718b !important; }
+
+#monthlyPieChart .financial-pie-segment:nth-of-type(2) { stroke: #54ff9f !important; }
+#monthlyPieChart .financial-pie-segment:nth-of-type(3) { stroke: #ff718b !important; }
+
+.chart-detail-row,
+.financial-detail-row {
+    border-color: rgba(145,255,188,.075);
+    border-radius: 10px;
+    transition: background .18s ease, border-color .18s ease;
+}
+
+.chart-detail-row:hover,
+.financial-detail-row.active {
+    background: rgba(84,255,159,.045);
+    border-color: rgba(84,255,159,.18);
+}
+
+.chart-detail-value,
+.chart-detail-percentage {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Evolution chart: green line and a softer area fill. */
+.evolution-chart {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(145,255,188,.07);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(84,255,159,.025), rgba(5,14,9,.10));
+}
+
+.evolution-grid-line {
+    stroke: rgba(145,255,188,.085);
+}
+
+.evolution-axis-label,
+.evolution-month {
+    fill: #8aa494;
+}
+
+.evolution-line {
+    stroke: #54ff9f !important;
+    stroke-width: 3 !important;
+    filter: drop-shadow(0 0 5px rgba(84,255,159,.30));
+}
+
+.evolution-area {
+    fill: rgba(84,255,159,.11) !important;
+    opacity: 1;
+}
+
+.evolution-point {
+    fill: #54ff9f !important;
+    stroke: #07100b !important;
+    stroke-width: 2 !important;
+    cursor: pointer;
+    filter: drop-shadow(0 0 5px rgba(84,255,159,.30));
+}
+
+.evolution-point:hover {
+    r: 7;
+    fill: #c1ffd8 !important;
+}
+
+.evolution-value {
+    fill: #c1ffd8;
+    font-weight: 600;
+}
+
+.evolution-tooltip {
+    z-index: 3;
+    border: 1px solid rgba(84,255,159,.22);
+    background: rgba(7,17,11,.96);
+    box-shadow: 0 12px 30px rgba(0,0,0,.35), 0 0 18px rgba(84,255,159,.07);
+    backdrop-filter: blur(12px);
+}
+
+.evolution-tooltip-value {
+    color: #54ff9f;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Tablet and mobile layouts avoid squeezing four cards into narrow widths. */
+@media (max-width: 1200px) {
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 850px) {
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .cards .summary-card {
+        padding: 16px;
+    }
+
+    .chart-panel,
+    .panel.chart-panel {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 520px) {
+    .cards {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cards .summary-card {
+        padding: 16px;
+    }
+
+    .category-chart {
+        gap: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .financial-pie-segment,
+    .chart-detail-row,
+    .financial-detail-row {
+        transition: none !important;
+    }
+}
+
+/* Keep the legend dots in sync with the SVG segment palette. */
+#categoryChartDetails .financial-detail-row:nth-child(1) .chart-detail-dot { background: #54ff9f !important; color: #54ff9f !important; }
+#categoryChartDetails .financial-detail-row:nth-child(2) .chart-detail-dot { background: #27dfb3 !important; color: #27dfb3 !important; }
+#categoryChartDetails .financial-detail-row:nth-child(3) .chart-detail-dot { background: #20c997 !important; color: #20c997 !important; }
+#categoryChartDetails .financial-detail-row:nth-child(4) .chart-detail-dot { background: #a3ffbf !important; color: #a3ffbf !important; }
+#categoryChartDetails .financial-detail-row:nth-child(5) .chart-detail-dot { background: #b7f34a !important; color: #b7f34a !important; }
+#categoryChartDetails .financial-detail-row:nth-child(6) .chart-detail-dot { background: #ffd166 !important; color: #ffd166 !important; }
+#categoryChartDetails .financial-detail-row:nth-child(7) .chart-detail-dot { background: #ff9f6e !important; color: #ff9f6e !important; }
+#categoryChartDetails .financial-detail-row:nth-child(8) .chart-detail-dot { background: #ff718b !important; color: #ff718b !important; }
+#categoryChartDetails .financial-detail-row:nth-child(9) .chart-detail-dot { background: #65d6ce !important; color: #65d6ce !important; }
+#categoryChartDetails .financial-detail-row:nth-child(10) .chart-detail-dot { background: #8bdc65 !important; color: #8bdc65 !important; }
+
+#incomePieDetails .financial-detail-row:nth-child(1) .chart-detail-dot { background: #54ff9f !important; color: #54ff9f !important; }
+#incomePieDetails .financial-detail-row:nth-child(2) .chart-detail-dot { background: #27dfb3 !important; color: #27dfb3 !important; }
+#incomePieDetails .financial-detail-row:nth-child(3) .chart-detail-dot { background: #20c997 !important; color: #20c997 !important; }
+#incomePieDetails .financial-detail-row:nth-child(4) .chart-detail-dot { background: #a3ffbf !important; color: #a3ffbf !important; }
+#incomePieDetails .financial-detail-row:nth-child(5) .chart-detail-dot { background: #b7f34a !important; color: #b7f34a !important; }
+#incomePieDetails .financial-detail-row:nth-child(6) .chart-detail-dot { background: #65d6ce !important; color: #65d6ce !important; }
+#incomePieDetails .financial-detail-row:nth-child(7) .chart-detail-dot { background: #8bdc65 !important; color: #8bdc65 !important; }
+#incomePieDetails .financial-detail-row:nth-child(8) .chart-detail-dot { background: #ffd166 !important; color: #ffd166 !important; }
+#incomePieDetails .financial-detail-row:nth-child(9) .chart-detail-dot { background: #ffb86b !important; color: #ffb86b !important; }
+#incomePieDetails .financial-detail-row:nth-child(10) .chart-detail-dot { background: #ff718b !important; color: #ff718b !important; }
