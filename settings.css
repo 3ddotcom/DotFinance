@@ -1,0 +1,338 @@
+/* =========================================================
+   DOT FINANCE — CONFIGURAÇÕES
+   ========================================================= */
+
+.settings-page-header {
+    margin-bottom: 24px;
+}
+
+.settings-page-header h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.settings-page-header p {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   CARDS DE CONFIGURAÇÕES
+   ========================================================= */
+
+.settings-panel {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin-bottom: 20px;
+    padding: 30px;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+
+/* =========================================================
+   CABEÇALHO DO CARD
+   ========================================================= */
+
+.settings-panel-header {
+    width: 100%;
+    margin-bottom: 26px;
+    text-align: center;
+}
+
+.settings-panel-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.settings-panel-header p {
+    margin: 7px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   PERFIL
+   ========================================================= */
+
+.settings-profile {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 26px;
+    padding: 18px 22px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.055);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.018);
+}
+
+.settings-avatar {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(56, 189, 248, 0.20);
+    border-radius: 13px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(56, 189, 248, 0.14),
+            rgba(56, 189, 248, 0.035)
+        );
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.settings-profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+}
+
+.settings-profile-info strong {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.settings-profile-info span {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   FORMULÁRIO
+   ========================================================= */
+
+.settings-form-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.settings-field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-field label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.settings-field input,
+.settings-field select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 14px;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    outline: none;
+    background: var(--card-background-soft);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: 12px;
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.settings-field input:hover,
+.settings-field select:hover {
+    border-color: var(--border-hover);
+}
+
+.settings-field input:focus,
+.settings-field select:focus {
+    border-color: rgba(56, 189, 248, 0.42);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.07);
+}
+
+.settings-field input:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+
+/* =========================================================
+   AÇÕES
+   ========================================================= */
+
+.settings-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.settings-actions button {
+    min-width: 180px;
+}
+
+
+/* =========================================================
+   MENSAGENS
+   ========================================================= */
+
+.settings-message {
+    min-height: 18px;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.settings-message.success {
+    color: var(--success);
+}
+
+.settings-message.error {
+    color: var(--danger);
+}
+
+/* =========================================================
+   SEGURANÇA E SESSÃO
+   ========================================================= */
+
+.settings-security-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 20px 22px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.055);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.018);
+    text-align: left;
+}
+
+.settings-security-item > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+}
+
+.settings-security-item strong {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.settings-security-item span {
+    max-width: 500px;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.settings-security-item button {
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   SELECT
+   ========================================================= */
+
+.settings-field select,
+.settings-field select option {
+    color: var(--text-primary);
+    background-color: #101724;
+    color-scheme: dark;
+}
+
+.settings-field select option:checked {
+    background-color: #172235;
+    color: #f5f7fa;
+}
+
+
+/* =========================================================
+   CELULAR
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .settings-panel {
+        padding: 24px 18px;
+    }
+
+    .settings-form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .settings-profile {
+        padding: 18px;
+    }
+
+    .settings-security-item {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 20px 18px;
+    }
+
+    .settings-security-item button {
+        width: 100%;
+    }
+
+    .settings-actions {
+        width: 100%;
+    }
+
+    .settings-actions button {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   CELULAR PEQUENO
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    .settings-panel {
+        padding: 22px 16px;
+    }
+
+    .settings-profile {
+        padding: 16px;
+    }
+
+    .settings-avatar {
+        width: 44px;
+        height: 44px;
+    }
+
+}

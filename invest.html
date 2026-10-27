@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="theme-color"
+    content="#0b0f19"
+>
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+<title>Investimentos | Dot Finance</title>
+
+<link
+    rel="stylesheet"
+    href="css/app.css"
+>
+
+<link
+    rel="stylesheet"
+    href="css/invest.css"
+>
+
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                ●
+            </div>
+
+            <div>
+
+                <strong>
+                    DOT FINANCE
+                </strong>
+
+                <span>
+                    Financeiro
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+
+            <a
+                href="app.html"
+                class="nav-item"
+            >
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+
+            <a
+                href="app.html"
+                class="nav-item"
+            >
+                <span>↓</span>
+                Gastos
+            </a>
+
+
+            <a
+                href="app.html"
+                class="nav-item"
+            >
+                <span>📥</span>
+                Importar extrato
+            </a>
+
+
+            <a
+                href="invest.html"
+                class="nav-item active"
+            >
+                <span>↗</span>
+                Investimentos
+            </a>
+
+
+            <a
+                href="app.html"
+                class="nav-item"
+            >
+                <span>▤</span>
+                Relatórios
+            </a>
+
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+
+            <a
+                href="app.html"
+                class="nav-item"
+            >
+                <span>⚙</span>
+                Configurações
+            </a>
+
+
+            <button
+                id="logoutButton"
+                class="logout-button"
+            >
+
+                <span>↪</span>
+                Sair
+
+            </button>
+
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         CONTEÚDO
+         ===================================================== -->
+
+    <main class="main-content">
+
+
+        <header class="topbar">
+
+
+            <div>
+
+                <h1>
+                    Investimentos
+                </h1>
+
+                <p>
+                    Acompanhe seu patrimônio e seus investimentos
+                </p>
+
+            </div>
+
+
+            <div class="user-area">
+
+                <div class="user-info">
+
+                    <strong id="userName">
+                        Usuário
+                    </strong>
+
+                    <span id="userEmail">
+                        carregando...
+                    </span>
+
+                </div>
+
+
+                <div class="avatar">
+                    U
+                </div>
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- =================================================
+             PÁGINA DE INVESTIMENTOS
+             ================================================= -->
+
+        <div class="page-content">
+
+
+            <!-- CABEÇALHO -->
+
+            <div class="page-header">
+
+                <div>
+
+                    <h1>
+                        Investimentos
+                    </h1>
+
+                    <p>
+                        Acompanhe seu patrimônio e a evolução da sua carteira.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="newInvestmentButton"
+                    class="primary-button"
+                    type="button"
+                >
+
+                    + Novo investimento
+
+                </button>
+
+            </div>
+
+            
+            <!-- MODAL NOVA MOVIMENTAÇÃO -->
+<div id="movementModal" class="investment-modal">
+
+    <div class="investment-modal-overlay"></div>
+
+    <div class="investment-modal-content">
+
+        <div class="investment-modal-header">
+
+            <div>
+                <h2>Nova movimentação</h2>
+                <p id="movementInvestmentName">
+                    Registrar movimentação
+                </p>
+            </div>
+
+            <button
+                id="closeMovementModal"
+                class="investment-modal-close"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="movementForm">
+
+            <div class="investment-form-grid">
+
+                <div class="form-group">
+
+                    <label for="movementType">
+                        Tipo de movimentação
+                    </label>
+
+                    <select
+                        id="movementType"
+                        required
+                    >
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        <option value="aporte">
+                            Aporte
+                        </option>
+
+                        <option value="resgate">
+                            Resgate
+                        </option>
+
+                        <option value="rendimento">
+                            Rendimento
+                        </option>
+
+                        <option value="taxa">
+                            Taxa
+                        </option>
+
+                        <option value="outros">
+                            Outros
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="movementAmount">
+                        Valor
+                    </label>
+
+                    <input
+                        type="number"
+                        id="movementAmount"
+                        placeholder="0,00"
+                        min="0.01"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="movementDate">
+                        Data
+                    </label>
+
+                    <input
+                        type="date"
+                        id="movementDate"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group investment-form-full">
+
+                    <label for="movementNotes">
+                        Observações
+                    </label>
+
+                    <textarea
+                        id="movementNotes"
+                        rows="3"
+                        placeholder="Informações adicionais..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="movementFormMessage"
+                class="investment-form-message"
+            ></div>
+
+
+            <div class="investment-modal-footer">
+
+                <button
+                    id="cancelMovementButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    class="primary-button"
+                    type="submit"
+                >
+                    Salvar movimentação
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+            <!-- MODAL NOVO INVESTIMENTO -->
+<div id="investmentModal" class="investment-modal">
+
+    <div class="investment-modal-overlay"></div>
+
+    <div class="investment-modal-content">
+
+        <div class="investment-modal-header">
+
+            <div>
+                <h2>Novo investimento</h2>
+                <p>Cadastre um novo investimento na sua carteira.</p>
+            </div>
+
+            <button
+                id="closeInvestmentModal"
+                class="investment-modal-close"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="investmentForm">
+
+            <div class="investment-form-grid">
+
+                <div class="form-group">
+
+                    <label for="investmentType">
+                        Tipo de investimento
+                    </label>
+
+                    <select
+                        id="investmentType"
+                        required
+                    >
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        <option value="Renda Fixa">
+                            Renda Fixa
+                        </option>
+
+                        <option value="Ações">
+                            Ações
+                        </option>
+
+                        <option value="FIIs">
+                            FIIs
+                        </option>
+
+                        <option value="ETFs">
+                            ETFs
+                        </option>
+
+                        <option value="Criptomoedas">
+                            Criptomoedas
+                        </option>
+
+                        <option value="Tesouro Direto">
+                            Tesouro Direto
+                        </option>
+
+                        <option value="Poupança">
+                            Poupança
+                        </option>
+
+                        <option value="Outros">
+                            Outros
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="investmentDescription">
+                        Nome / ativo
+                    </label>
+
+                    <input
+                        type="text"
+                        id="investmentDescription"
+                        placeholder="Ex.: CDB Banco X"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="investmentAmount">
+                        Valor investido
+                    </label>
+
+                    <input
+                        type="number"
+                        id="investmentAmount"
+                        placeholder="0,00"
+                        min="0.01"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="investmentDate">
+                        Data da aplicação
+                    </label>
+
+                    <input
+                        type="date"
+                        id="investmentDate"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="investmentInstitution">
+                        Instituição
+                    </label>
+
+                    <input
+                        type="text"
+                        id="investmentInstitution"
+                        placeholder="Ex.: Nubank"
+                    >
+
+                </div>
+
+
+                <div class="form-group investment-form-full">
+
+                    <label for="investmentNotes">
+                        Observações
+                    </label>
+
+                    <textarea
+                        id="investmentNotes"
+                        rows="3"
+                        placeholder="Informações adicionais..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="investmentFormMessage"
+                class="investment-form-message"
+            ></div>
+
+
+            <div class="investment-modal-footer">
+
+                <button
+                    id="cancelInvestmentButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    class="primary-button"
+                    type="submit"
+                >
+                    Salvar investimento
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+            <!-- =================================================
+                 RESUMO
+                 ================================================= -->
+
+            <section class="investment-summary">
+
+
+                <div class="investment-summary-card">
+
+                    <span class="investment-summary-label">
+                        Patrimônio atual
+                    </span>
+
+                    <strong id="investmentCurrentTotal">
+                        R$ 0,00
+                    </strong>
+
+                    <small>
+                        Valor atual da carteira
+                    </small>
+
+                </div>
+
+
+                <div class="investment-summary-card">
+
+                    <span class="investment-summary-label">
+                        Total investido
+                    </span>
+
+                    <strong id="investmentInvestedTotal">
+                        R$ 0,00
+                    </strong>
+
+                    <small>
+                        Valor aplicado
+                    </small>
+
+                </div>
+
+
+                <div class="investment-summary-card">
+
+                    <span class="investment-summary-label">
+                        Rendimentos
+                    </span>
+
+                    <strong
+                        id="investmentProfitTotal"
+                        class="investment-positive"
+                    >
+                        R$ 0,00
+                    </strong>
+
+                    <small>
+                        Ganho acumulado
+                    </small>
+
+                </div>
+
+
+                <div class="investment-summary-card">
+
+                    <span class="investment-summary-label">
+                        Rentabilidade
+                    </span>
+
+                    <strong
+                        id="investmentProfitPercent"
+                        class="investment-positive"
+                    >
+                        0,00%
+                    </strong>
+
+                    <small>
+                        Sobre o valor investido
+                    </small>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 EVOLUÇÃO DO PATRIMÔNIO
+                 ================================================= -->
+
+            <section class="panel investment-panel">
+
+
+                <div class="panel-header">
+
+
+                    <div>
+
+                        <h2>
+                            Evolução do patrimônio
+                        </h2>
+
+                        <p>
+                            Acompanhe o crescimento dos seus investimentos ao longo do tempo.
+                        </p>
+
+                    </div>
+
+
+                    <select
+                        id="investmentEvolutionPeriod"
+                        class="investment-period-select"
+                    >
+
+                        <option value="6">
+                            6 meses
+                        </option>
+
+                        <option value="12">
+                            12 meses
+                        </option>
+
+                        <option value="24">
+                            2 anos
+                        </option>
+
+                    </select>
+
+
+                </div>
+
+
+                <div
+                    id="investmentChart"
+                    class="investment-chart"
+                >
+
+                    <div class="investment-empty">
+
+                        Nenhum histórico de investimentos disponível.
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 CARTEIRA
+                 ================================================= -->
+
+            <section class="panel investment-panel">
+
+
+                <div class="panel-header">
+
+
+                    <div>
+
+                        <h2>
+                            Minha carteira
+                        </h2>
+
+                        <p>
+                            Seus investimentos cadastrados.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div
+                    id="investmentPortfolio"
+                    class="investment-portfolio"
+                >
+
+                    <div class="investment-empty">
+
+                        Você ainda não possui investimentos cadastrados.
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 MOVIMENTAÇÕES
+                 ================================================= -->
+
+            <section class="panel investment-panel">
+
+
+                <div class="panel-header">
+
+
+                    <div>
+
+                        <h2>
+                            Movimentações
+                        </h2>
+
+                        <p>
+                            Histórico de aportes, resgates e rendimentos.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div
+                    id="investmentMovements"
+                    class="investment-movements"
+                >
+
+                    <div class="investment-empty">
+
+                        Nenhuma movimentação registrada.
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+
+
+<!-- =========================================================
+     SCRIPTS
+     ========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/config.js"></script>
+
+<script src="js/auth.js"></script>
+
+<script src="js/invest.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+```
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="theme-color"
+    content="#0b0f19"
+>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+<title>Dot Finance</title>
+
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/extrato.css">
+<link rel="stylesheet" href="css/settings.css">
+```
+
+</head>
+
+<body>
+
+<div class="app-layout">
+
+```
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            ●
+        </div>
+
+        <div>
+            <strong>
+                DOT FINANCE
+            </strong>
+
+            <span>
+                Financeiro
+            </span>
+        </div>
+
+    </div>
+
+    <nav class="navigation">
+
+        <button
+            class="nav-item active"
+            data-page="dashboard"
+            type="button"
+        >
+            <span>⌂</span>
+            Dashboard
+        </button>
+
+        <button
+            class="nav-item"
+            data-page="expenses"
+            type="button"
+        >
+            <span>↓</span>
+            Gastos
+        </button>
+
+        <button
+            class="nav-item"
+            data-page="importExtrato"
+            type="button"
+        >
+            <span>📥</span>
+            Importar extrato
+        </button>
+
+        <a
+            class="nav-item"
+            href="invest.html"
+        >
+            <span>↗</span>
+            Investimentos
+        </a>
+
+        <button
+            class="nav-item"
+            data-page="reports"
+            type="button"
+        >
+            <span>▤</span>
+            Relatórios
+        </button>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+        <button
+            class="nav-item"
+            data-page="settings"
+            type="button"
+        >
+            <span>⚙</span>
+            Configurações
+        </button>
+
+        <button
+            id="logoutButton"
+            class="logout-button"
+            type="button"
+        >
+            <span>↪</span>
+            Sair
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- CONTEÚDO PRINCIPAL -->
+<main class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+
+        <div>
+
+            <h1 id="pageTitle">
+                Dashboard
+            </h1>
+
+            <p id="pageSubtitle">
+                Visão geral das suas finanças
+            </p>
+
+        </div>
+
+        <div class="user-area">
+
+            <div class="user-info">
+
+                <strong id="userName">
+                    Usuário
+                </strong>
+
+                <span id="userEmail">
+                    carregando...
+                </span>
+
+            </div>
+
+            <div class="avatar">
+                U
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================================= -->
+    <!-- DASHBOARD -->
+    <!-- ========================================================= -->
+
+    <section
+        id="dashboardPage"
+        class="page active-page"
+    >
+
+        <!-- SELETOR DE MÊS -->
+        <div class="month-selector">
+
+            <button
+                id="previousMonth"
+                type="button"
+                aria-label="Mês anterior"
+            >
+                ‹
+            </button>
+
+            <strong id="currentMonth">
+                Setembro 2026
+            </strong>
+
+            <button
+                id="nextMonth"
+                type="button"
+                aria-label="Próximo mês"
+            >
+                ›
+            </button>
+
+        </div>
+
+
+        <!-- RESUMO -->
+        <div class="cards">
+
+            <article class="summary-card">
+
+                <span>
+                    Gastos do mês
+                </span>
+
+                <strong id="monthlyExpenses">
+                    R$ 0,00
+                </strong>
+
+                <small id="monthlyExpensesComparison">
+                    Sem comparação
+                </small>
+
+            </article>
+
+
+            <article class="summary-card">
+
+                <span>
+                    Quantidade de gastos
+                </span>
+
+                <strong id="expenseCount">
+                    0
+                </strong>
+
+                <small>
+                    Lançamentos
+                </small>
+
+            </article>
+
+
+            <article class="summary-card">
+
+                <span>
+                    Média por gasto
+                </span>
+
+                <strong id="averageExpense">
+                    R$ 0,00
+                </strong>
+
+                <small>
+                    Valor médio por lançamento
+                </small>
+
+            </article>
+
+
+            <article class="summary-card">
+
+                <span>
+                    Maior gasto
+                </span>
+
+                <strong id="largestExpense">
+                    R$ 0,00
+                </strong>
+
+                <small id="largestExpenseName">
+                    Nenhum lançamento
+                </small>
+
+            </article>
+
+        </div>
+
+
+        <!-- GASTOS POR CATEGORIA -->
+        <div class="dashboard-charts">
+
+            <section class="panel chart-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Gastos por categoria
+                        </h2>
+
+                        <p>
+                            Distribuição dos gastos no mês
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="category-chart">
+
+                    <div
+                        id="categoryPieChart"
+                        class="pie-chart"
+                        aria-label="Gráfico de gastos por categoria"
+                    ></div>
+
+
+                    <div
+                        id="categoryChartDetails"
+                        class="chart-details"
+                    ></div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+        <!------ Pizza Entradas ------>
+        <div class="panel chart-panel">
+    <div class="panel-header">
+        <div>
+            <h2>Entradas por categoria</h2>
+            <p>Distribuição das entradas no mês</p>
+        </div>
+    </div>
+
+    <div class="category-chart">
+        <div id="incomePieChart" class="pie-chart-wrapper"></div>
+    </div>
+</div>
+
+
+        <!-- EVOLUÇÃO DOS GASTOS -->
+        <div class="dashboard-evolution">
+
+            <section class="panel chart-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Evolução dos gastos
+                        </h2>
+
+                        <p>
+                            Gastos dos últimos 6 meses
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="expenseEvolutionChart"
+                    class="evolution-chart"
+                >
+
+                    <div class="evolution-empty">
+                        Carregando evolução...
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- ENTRADAS DO MÊS -->
+        <div class="content-grid">
+
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Entradas do mês
+                        </h2>
+
+                        <p>
+                            Receitas e recebimentos registrados no mês
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="newIncomeButton"
+                        class="primary-button"
+                        type="button"
+                    >
+                        + Nova entrada
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recentIncomes"
+                    class="expenses-list"
+                >
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            ↑
+                        </div>
+
+                        <strong>
+                            Nenhuma entrada registrada
+                        </strong>
+
+                        <span>
+                            Adicione sua primeira entrada para começar.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- GASTOS RECENTES -->
+        <div class="content-grid">
+
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Gastos recentes
+                        </h2>
+
+                        <p>
+                            Últimos lançamentos
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="newExpenseButton"
+                        class="primary-button"
+                        type="button"
+                    >
+                        + Novo gasto
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recentExpenses"
+                    class="expenses-list"
+                >
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            ↓
+                        </div>
+
+                        <strong>
+                            Nenhum gasto registrado
+                        </strong>
+
+                        <span>
+                            Adicione seu primeiro gasto para começar.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- IMPORTAR EXTRATO -->
+    <!-- ========================================================= -->
+
+    <section
+        id="importExtratoPage"
+        class="page"
+    >
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Importar extrato
+                </h1>
+
+                <p>
+                    Importe as movimentações do seu banco para cadastrar seus gastos.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <section class="panel import-extrato-panel">
+
+            <div class="import-extrato-content">
+
+                <div class="import-extrato-icon">
+                    ↑
+                </div>
+
+                <h2>
+                    Importe seu extrato bancário
+                </h2>
+
+                <p>
+                    Selecione um arquivo CSV exportado pelo seu banco.
+                    Antes de salvar, você poderá revisar todas as movimentações.
+                </p>
+
+
+                <label
+                    for="extratoFileInput"
+                    class="primary-button import-file-button"
+                >
+                    Selecionar arquivo
+                </label>
+
+
+                <input
+                    type="file"
+                    id="extratoFileInput"
+                    accept=".csv"
+                    hidden
+                >
+
+
+                <small>
+                    Formato aceito: CSV
+                </small>
+
+            </div>
+
+        </section>
+
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- GASTOS -->
+    <!-- ========================================================= -->
+
+    <section
+        id="expensesPage"
+        class="page"
+    >
+
+        <div class="page-actions">
+
+            <div>
+
+                <h2>
+                    Gastos
+                </h2>
+
+                <p>
+                    Controle todas as despesas da empresa.
+                </p>
+
+            </div>
+
+
+            <button
+                id="newExpenseButton2"
+                class="primary-button"
+                type="button"
+            >
+                + Novo gasto
+            </button>
+
+        </div>
+
+
+        <!-- RESUMO DOS GASTOS -->
+        <section class="expense-summary">
+
+            <div class="expense-summary-card">
+
+                <span class="expense-summary-label">
+                    Total gasto
+                </span>
+
+                <strong
+                    id="expensesPageTotal"
+                    class="expense-summary-value"
+                >
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+
+            <div class="expense-summary-card">
+
+                <span class="expense-summary-label">
+                    Lançamentos
+                </span>
+
+                <strong
+                    id="expensesPageCount"
+                    class="expense-summary-value"
+                >
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="expense-summary-card">
+
+                <span class="expense-summary-label">
+                    Média por lançamento
+                </span>
+
+                <strong
+                    id="expensesPageAverage"
+                    class="expense-summary-value"
+                >
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+
+            <div class="expense-summary-card">
+
+                <span class="expense-summary-label">
+                    Maior gasto
+                </span>
+
+                <strong
+                    id="expensesPageLargest"
+                    class="expense-summary-value"
+                >
+                    R$ 0,00
+                </strong>
+
+                <span
+                    id="expensesPageLargestName"
+                    class="expense-summary-description"
+                >
+                    Nenhum lançamento
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- FILTROS -->
+        <section class="panel expenses-filters">
+
+            <div class="filter-field search-field">
+
+                <label for="expenseSearch">
+                    Buscar
+                </label>
+
+                <input
+                    type="search"
+                    id="expenseSearch"
+                    placeholder="Ex.: filamento, embalagem, anúncio..."
+                >
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label for="expenseCategoryFilter">
+                    Categoria
+                </label>
+
+                <select id="expenseCategoryFilter">
+
+                    <option value="">
+                        Todas as categorias
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label for="expenseMonthFilter">
+                    Mês
+                </label>
+
+                <input
+                    type="month"
+                    id="expenseMonthFilter"
+                >
+
+            </div>
+
+        </section>
+
+
+        <!-- LANÇAMENTOS -->
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Lançamentos
+                    </h2>
+
+                    <p id="expensesResultCount">
+                        Carregando...
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="expensesList"
+                class="expenses-list"
+            >
+
+                <div class="empty-state">
+
+                    <strong>
+                        Carregando gastos...
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- RELATÓRIOS -->
+    <!-- ========================================================= -->
+
+    <section
+        id="reportsPage"
+        class="page"
+    >
+
+        <div class="coming-soon">
+
+            <div>
+                ▤
+            </div>
+
+            <h2>
+                Relatórios
+            </h2>
+
+            <p>
+                Em breve você poderá acompanhar seus gastos por período e categoria.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- CONFIGURAÇÕES -->
+    <!-- ========================================================= -->
+
+    <section
+        id="settingsPage"
+        class="page"
+    >
+
+        <div class="settings-page-header">
+
+            <div>
+
+                <h2>
+                    Configurações
+                </h2>
+
+                <p>
+                    Gerencie seus dados pessoais e preferências do Dot Finance.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- PERFIL -->
+        <section class="panel settings-panel">
+
+            <div class="settings-panel-header">
+
+                <div>
+
+                    <h3>
+                        Perfil
+                    </h3>
+
+                    <p>
+                        Informações da sua conta.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-profile">
+
+                <div
+                    class="settings-avatar"
+                    id="settingsAvatar"
+                >
+                    U
+                </div>
+
+
+                <div class="settings-profile-info">
+
+                    <strong id="settingsProfileName">
+                        Usuário
+                    </strong>
+
+                    <span id="settingsProfileEmail">
+                        carregando...
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-form-grid">
+
+                <div class="settings-field">
+
+                    <label for="settingsName">
+                        Nome
+                    </label>
+
+                    <input
+                        type="text"
+                        id="settingsName"
+                        placeholder="Seu nome"
+                    >
+
+                </div>
+
+
+                <div class="settings-field">
+
+                    <label for="settingsEmail">
+                        E-mail
+                    </label>
+
+                    <input
+                        type="email"
+                        id="settingsEmail"
+                        disabled
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="settingsProfileMessage"
+                class="settings-message"
+            ></div>
+
+
+            <div class="settings-actions">
+
+                <button
+                    id="saveProfileButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    Salvar alterações
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- PREFERÊNCIAS -->
+        <section class="panel settings-panel">
+
+            <div class="settings-panel-header">
+
+                <div>
+
+                    <h3>
+                        Preferências
+                    </h3>
+
+                    <p>
+                        Personalize a forma como o Dot Finance apresenta seus dados.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-form-grid">
+
+                <div class="settings-field">
+
+                    <label for="settingsCurrency">
+                        Moeda
+                    </label>
+
+                    <select id="settingsCurrency">
+
+                        <option value="BRL">
+                            Real brasileiro (R$)
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="settings-field">
+
+                    <label for="settingsDateFormat">
+                        Formato de data
+                    </label>
+
+                    <select id="settingsDateFormat">
+
+                        <option value="DD/MM/YYYY">
+                            DD/MM/AAAA
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="settingsPreferencesMessage"
+                class="settings-message"
+            ></div>
+
+
+            <div class="settings-actions">
+
+                <button
+                    id="savePreferencesButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    Salvar preferências
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- SEGURANÇA -->
+        <section class="panel settings-panel">
+
+            <div class="settings-panel-header">
+
+                <div>
+
+                    <h3>
+                        Segurança
+                    </h3>
+
+                    <p>
+                        Gerencie o acesso à sua conta.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-security-item">
+
+                <div>
+
+                    <strong>
+                        Senha
+                    </strong>
+
+                    <span>
+                        Você pode solicitar a alteração da senha da sua conta.
+                    </span>
+
+                </div>
+
+
+                <button
+                    id="changePasswordButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Alterar senha
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- SESSÃO -->
+        <section class="panel settings-panel settings-danger-panel">
+
+            <div class="settings-panel-header">
+
+                <div>
+
+                    <h3>
+                        Sessão
+                    </h3>
+
+                    <p>
+                        Encerre o acesso à sua conta neste dispositivo.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-security-item">
+
+                <div>
+
+                    <strong>
+                        Sair da conta
+                    </strong>
+
+                    <span>
+                        Você precisará fazer login novamente para acessar o Dot Finance.
+                    </span>
+
+                </div>
+
+
+                <button
+                    id="settingsLogoutButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Sair da conta
+                </button>
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+```
+
+</div>
+
+<!-- ========================================================= -->
+
+<!-- MODAL NOVO GASTO -->
+
+<!-- ========================================================= -->
+
+<div
+    id="expenseModal"
+    class="modal"
+>
+
+```
+<div class="modal-overlay"></div>
+
+
+<div class="modal-card">
+
+    <div class="modal-header">
+
+        <div>
+
+            <h2>
+                Novo gasto
+            </h2>
+
+            <p>
+                Registre uma despesa empresarial.
+            </p>
+
+        </div>
+
+
+        <button
+            id="closeExpenseModal"
+            class="close-button"
+            type="button"
+            aria-label="Fechar"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <form id="expenseForm">
+
+        <div class="form-grid">
+
+            <div class="form-field">
+
+                <label for="expenseDescription">
+                    Descrição
+                </label>
+
+                <input
+                    type="text"
+                    id="expenseDescription"
+                    placeholder="Ex.: Filamento PLA"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="expenseAmount">
+                    Valor
+                </label>
+
+                <input
+                    type="number"
+                    id="expenseAmount"
+                    placeholder="0,00"
+                    min="0.01"
+                    step="0.01"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="expenseDate">
+                    Data
+                </label>
+
+                <input
+                    type="date"
+                    id="expenseDate"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="expenseCategory">
+                    Categoria
+                </label>
+
+                <select
+                    id="expenseCategory"
+                    required
+                >
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="expensePayment">
+                    Forma de pagamento
+                </label>
+
+                <select id="expensePayment">
+
+                    <option value="">
+                        Não informado
+                    </option>
+
+                    <option value="pix">
+                        PIX
+                    </option>
+
+                    <option value="credit_card">
+                        Cartão de crédito
+                    </option>
+
+                    <option value="debit_card">
+                        Cartão de débito
+                    </option>
+
+                    <option value="bank_transfer">
+                        Transferência
+                    </option>
+
+                    <option value="cash">
+                        Dinheiro
+                    </option>
+
+                    <option value="boleto">
+                        Boleto
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label for="expenseNotes">
+                    Observação
+                </label>
+
+                <textarea
+                    id="expenseNotes"
+                    rows="3"
+                    placeholder="Opcional"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                id="cancelExpense"
+                class="secondary-button"
+            >
+                Cancelar
+            </button>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+                id="saveExpense"
+            >
+                Salvar gasto
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```
+
+</div>
+
+<!-- ========================================================= -->
+
+<!-- MODAL NOVA ENTRADA -->
+
+<!-- ========================================================= -->
+
+<div
+    id="incomeModal"
+    class="modal"
+>
+
+```
+<div class="modal-overlay"></div>
+
+
+<div class="modal-card">
+
+    <div class="modal-header">
+
+        <div>
+
+            <h2>
+                Nova entrada
+            </h2>
+
+            <p>
+                Registre uma receita ou recebimento.
+            </p>
+
+        </div>
+
+
+        <button
+            id="closeIncomeModal"
+            class="close-button"
+            type="button"
+            aria-label="Fechar"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <form id="incomeForm">
+
+        <div class="form-grid">
+
+            <div class="form-field">
+
+                <label for="incomeDescription">
+                    Descrição
+                </label>
+
+                <input
+                    type="text"
+                    id="incomeDescription"
+                    placeholder="Ex.: Venda Mercado Livre"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="incomeAmount">
+                    Valor
+                </label>
+
+                <input
+                    type="number"
+                    id="incomeAmount"
+                    placeholder="0,00"
+                    min="0.01"
+                    step="0.01"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="incomeDate">
+                    Data
+                </label>
+
+                <input
+                    type="date"
+                    id="incomeDate"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+    <label for="incomeCategory">
+        Categoria
+    </label>
+
+    <select id="incomeCategory" required>
+        <option value="">
+            Selecione
+        </option>
+    </select>
+</div>
+
+
+            <div class="form-field">
+
+                <label for="incomePayment">
+                    Forma de recebimento
+                </label>
+
+                <select id="incomePayment">
+
+                    <option value="">
+                        Não informado
+                    </option>
+
+                    <option value="pix">
+                        PIX
+                    </option>
+
+                    <option value="credit_card">
+                        Cartão de crédito
+                    </option>
+
+                    <option value="debit_card">
+                        Cartão de débito
+                    </option>
+
+                    <option value="bank_transfer">
+                        Transferência
+                    </option>
+
+                    <option value="cash">
+                        Dinheiro
+                    </option>
+
+                    <option value="boleto">
+                        Boleto
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="incomeRecurring">
+                    Recorrência
+                </label>
+
+                <select id="incomeRecurring">
+
+                    <option value="false">
+                        Não recorrente
+                    </option>
+
+                    <option value="true">
+                        Entrada recorrente
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label for="incomeNotes">
+                    Observação
+                </label>
+
+                <textarea
+                    id="incomeNotes"
+                    rows="3"
+                    placeholder="Opcional"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                id="cancelIncome"
+                class="secondary-button"
+            >
+                Cancelar
+            </button>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+                id="saveIncome"
+            >
+                Salvar entrada
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```
+
+</div>
+
+<!-- ========================================================= -->
+
+<!-- SCRIPTS -->
+
+<!-- ========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/config.js"></script>
+
+<script src="js/auth.js"></script>
+
+<script src="js/app.js"></script>
+
+<script src="js/import-extrato.js"></script>
+
+<script src="js/settings.js"></script>
+
+</body>
+</html>

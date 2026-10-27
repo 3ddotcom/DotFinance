@@ -1,0 +1,917 @@
+/* =========================================================
+   DOT FINANCE — INVESTIMENTOS
+   ========================================================= */
+
+/* =========================================================
+   RESUMO
+   ========================================================= */
+
+.investment-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.investment-summary-card {
+    position: relative;
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.008)
+        ),
+        var(--surface);
+    overflow: hidden;
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+.investment-summary-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(56, 189, 248, 0.65),
+            transparent
+        );
+    opacity: 0.55;
+}
+
+.investment-summary-card::after {
+    content: "";
+    position: absolute;
+    top: -90px;
+    right: -90px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            rgba(56, 189, 248, 0.12),
+            transparent 68%
+        );
+    pointer-events: none;
+    transition:
+        transform 0.35s ease,
+        opacity 0.35s ease;
+}
+
+.investment-summary-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(56, 189, 248, 0.28);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(56, 189, 248, 0.045),
+            rgba(255, 255, 255, 0.01)
+        ),
+        var(--surface);
+    box-shadow:
+        0 14px 35px rgba(0, 0, 0, 0.18),
+        0 0 25px rgba(56, 189, 248, 0.035);
+}
+
+.investment-summary-card:hover::after {
+    transform: scale(1.18);
+    opacity: 1;
+}
+
+.investment-summary-label {
+    position: relative;
+    z-index: 1;
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.investment-summary-card strong {
+    position: relative;
+    z-index: 1;
+    display: block;
+    color: var(--text-primary);
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+}
+
+.investment-summary-card small {
+    position: relative;
+    z-index: 1;
+    display: block;
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
+.investment-positive {
+    color: #4ade80 !important;
+}
+
+/* =========================================================
+   PAINÉIS
+   ========================================================= */
+
+.investment-panel {
+    margin-bottom: 20px;
+    border-color: rgba(255, 255, 255, 0.055);
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.investment-panel:hover {
+    border-color: rgba(56, 189, 248, 0.12);
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.08);
+}
+
+.investment-panel .panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.investment-panel .panel-header h2 {
+    margin: 0;
+}
+
+.investment-panel .panel-header p {
+    margin-top: 5px;
+}
+
+/* =========================================================
+   FILTRO DE PERÍODO
+   ========================================================= */
+
+.investment-period-select {
+    min-width: 125px;
+    height: 36px;
+    padding: 0 32px 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #101724;
+    color: var(--text-primary);
+    color-scheme: dark;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.investment-period-select:hover {
+    border-color: rgba(56, 189, 248, 0.3);
+    background: #121b2b;
+}
+
+.investment-period-select:focus {
+    border-color: var(--primary);
+    box-shadow:
+        0 0 0 3px rgba(56, 189, 248, 0.07);
+}
+
+.investment-period-select option {
+    background: #101724;
+    color: #f5f7fa;
+}
+
+/* =========================================================
+   GRÁFICO
+   ========================================================= */
+
+.investment-chart {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    margin-top: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.025);
+    border-radius: 13px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(56, 189, 248, 0.025),
+            rgba(255, 255, 255, 0.004)
+        );
+    overflow: hidden;
+}
+
+.investment-chart::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            to bottom,
+            transparent 24.5%,
+            rgba(255, 255, 255, 0.035) 25%,
+            transparent 25.5%,
+            transparent 49.5%,
+            rgba(255, 255, 255, 0.035) 50%,
+            transparent 50.5%,
+            transparent 74.5%,
+            rgba(255, 255, 255, 0.035) 75%,
+            transparent 75.5%
+        );
+    pointer-events: none;
+}
+
+.investment-chart::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 80px;
+    background:
+        linear-gradient(
+            to top,
+            rgba(56, 189, 248, 0.035),
+            transparent
+        );
+    pointer-events: none;
+}
+
+.investment-empty {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 180px;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+/* =========================================================
+   CARTEIRA
+   ========================================================= */
+
+.investment-portfolio {
+    width: 100%;
+}
+
+.investment-portfolio:has(.investment-empty) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 170px;
+}
+
+.investment-portfolio:has(.investment-empty) .investment-empty {
+    min-height: 120px;
+}
+
+/* =========================================================
+   ITEM DA CARTEIRA
+   ========================================================= */
+
+.investment-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 17px 4px;
+    border-bottom: 1px solid var(--border);
+    transition:
+        background 0.2s ease,
+        padding 0.2s ease;
+}
+
+.investment-item:last-child {
+    border-bottom: none;
+}
+
+.investment-item:hover {
+    padding-right: 10px;
+    padding-left: 10px;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(56, 189, 248, 0.025),
+            transparent
+        );
+}
+
+.investment-item-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.investment-item-info strong {
+    display: block;
+    overflow: hidden;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.investment-item-info span {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.investment-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.investment-item-value {
+    min-width: 110px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   BOTÕES DA CARTEIRA
+   ========================================================= */
+
+.investment-movement-button,
+.investment-edit-button,
+.investment-delete-button {
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* =========================================================
+   BOTÃO MOVIMENTAÇÃO
+   ========================================================= */
+
+.investment-movement-button {
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.012);
+    color: var(--text-secondary);
+}
+
+.investment-movement-button:hover {
+    border-color: rgba(56, 189, 248, 0.4);
+    background: rgba(56, 189, 248, 0.07);
+    color: var(--primary);
+    box-shadow:
+        0 0 16px rgba(56, 189, 248, 0.08);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   BOTÃO ALTERAR
+   ========================================================= */
+
+.investment-edit-button {
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.012);
+    color: var(--text-secondary);
+}
+
+.investment-edit-button:hover {
+    border-color: rgba(139, 92, 246, 0.45);
+    background: rgba(139, 92, 246, 0.08);
+    color: #a78bfa;
+    box-shadow:
+        0 0 16px rgba(139, 92, 246, 0.08);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   BOTÃO EXCLUIR
+   ========================================================= */
+
+.investment-delete-button {
+    border: 1px solid rgba(239, 68, 68, 0.16);
+    background: rgba(239, 68, 68, 0.025);
+    color: #f87171;
+}
+
+.investment-delete-button:hover {
+    border-color: rgba(239, 68, 68, 0.42);
+    background: rgba(239, 68, 68, 0.09);
+    color: #fb7185;
+    box-shadow:
+        0 0 16px rgba(239, 68, 68, 0.08);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   MOVIMENTAÇÕES
+   ========================================================= */
+
+.investment-movements {
+    width: 100%;
+}
+
+.investment-movements:has(.investment-empty) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+}
+
+.investment-movements:has(.investment-empty) .investment-empty {
+    min-height: 100px;
+}
+
+/* =========================================================
+   ITEM DE MOVIMENTAÇÃO
+   ========================================================= */
+
+.investment-movement-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px 4px;
+    border-bottom: 1px solid var(--border);
+    transition:
+        background 0.2s ease,
+        padding 0.2s ease;
+}
+
+.investment-movement-item:last-child {
+    border-bottom: none;
+}
+
+.investment-movement-item:hover {
+    padding-right: 10px;
+    padding-left: 10px;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(56, 189, 248, 0.025),
+            transparent
+        );
+}
+
+.investment-movement-info {
+    min-width: 0;
+}
+
+.investment-movement-info strong {
+    display: block;
+    overflow: hidden;
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.investment-movement-info span {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
+.investment-movement-value {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.investment-movement-value.positive {
+    color: #4ade80;
+}
+
+.investment-movement-value.negative {
+    color: #f87171;
+}
+
+/* =========================================================
+   MODAIS
+   ========================================================= */
+
+.investment-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.investment-modal.active {
+    display: flex;
+}
+
+.investment-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.76);
+    backdrop-filter: blur(8px);
+}
+
+.investment-modal-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 620px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 26px;
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 28, 42, 0.98),
+            rgba(11, 17, 28, 0.99)
+        );
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.5),
+        0 0 45px rgba(56, 189, 248, 0.05);
+    animation: investmentModalIn 0.22s ease;
+}
+
+@keyframes investmentModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.investment-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.investment-modal-header h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.investment-modal-header p {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.investment-modal-close {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-muted);
+    font-size: 21px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.investment-modal-close:hover {
+    border-color: rgba(56, 189, 248, 0.35);
+    background: rgba(56, 189, 248, 0.06);
+    color: var(--text-primary);
+    transform: rotate(3deg);
+}
+
+/* =========================================================
+   FORMULÁRIO
+   ========================================================= */
+
+.investment-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.investment-form-full {
+    grid-column: 1 / -1;
+}
+
+.investment-modal .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.investment-modal .form-group label {
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.investment-modal .form-group input,
+.investment-modal .form-group select,
+.investment-modal .form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    outline: none;
+    background: rgba(0, 0, 0, 0.16);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.investment-modal .form-group input:hover,
+.investment-modal .form-group select:hover,
+.investment-modal .form-group textarea:hover {
+    border-color: rgba(56, 189, 248, 0.18);
+}
+
+.investment-modal .form-group input:focus,
+.investment-modal .form-group select:focus,
+.investment-modal .form-group textarea:focus {
+    border-color: var(--primary);
+    background: rgba(56, 189, 248, 0.025);
+    box-shadow:
+        0 0 0 3px rgba(56, 189, 248, 0.08),
+        0 0 18px rgba(56, 189, 248, 0.035);
+}
+
+.investment-modal .form-group select {
+    background: #101724;
+    color: var(--text-primary);
+    color-scheme: dark;
+    cursor: pointer;
+}
+
+.investment-modal .form-group select option {
+    background: #101724;
+    color: #f5f7fa;
+}
+
+.investment-modal .form-group select option:checked {
+    background: #172235;
+    color: #ffffff;
+}
+
+.investment-modal .form-group textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+/* =========================================================
+   RODAPÉ DO MODAL
+   ========================================================= */
+
+.investment-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+
+.investment-modal-footer button {
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.investment-modal-footer button:hover {
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   MENSAGEM
+   ========================================================= */
+
+.investment-form-message {
+    display: none;
+    margin-top: 16px;
+    padding: 10px 12px;
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.07);
+    color: #f87171;
+    font-size: 12px;
+}
+
+.investment-form-message.active {
+    display: block;
+}
+
+/* =========================================================
+   RESPONSIVO — 1100PX
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .investment-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* =========================================================
+   RESPONSIVO — 700PX
+   ========================================================= */
+
+@media (max-width: 700px) {
+    .investment-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .investment-summary-card {
+        padding: 18px;
+    }
+
+    .investment-summary-card strong {
+        font-size: 21px;
+    }
+
+    .investment-panel .panel-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .investment-period-select {
+        width: 100%;
+    }
+
+    .investment-chart {
+        height: 220px;
+    }
+
+    .investment-item {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .investment-item-actions {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 7px;
+    }
+
+    .investment-item-value {
+        min-width: auto;
+    }
+
+    .investment-movement-item {
+        align-items: flex-start;
+    }
+}
+
+/* =========================================================
+   RESPONSIVO — 600PX
+   ========================================================= */
+
+@media (max-width: 600px) {
+    .investment-modal {
+        padding: 12px;
+    }
+
+    .investment-modal-content {
+        max-height: calc(100vh - 24px);
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .investment-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .investment-form-full {
+        grid-column: auto;
+    }
+
+    .investment-modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .investment-modal-footer button {
+        width: 100%;
+    }
+
+    .investment-item {
+        padding: 15px 0;
+    }
+
+    .investment-item-info strong {
+        max-width: 170px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVO — 420PX
+   ========================================================= */
+
+@media (max-width: 420px) {
+    .investment-summary-card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .investment-summary-card strong {
+        font-size: 20px;
+    }
+
+    .investment-chart {
+        height: 200px;
+    }
+
+    .investment-item {
+        gap: 8px;
+    }
+
+    .investment-item-info strong {
+        max-width: 135px;
+    }
+
+    .investment-item-actions {
+        gap: 6px;
+    }
+
+    .investment-movement-button,
+    .investment-edit-button,
+    .investment-delete-button {
+        padding: 6px 8px;
+        font-size: 10px;
+    }
+
+    .investment-modal-header h2 {
+        font-size: 18px;
+    }
+}
+
+/* =========================================================
+   ACESSIBILIDADE / REDUÇÃO DE MOVIMENTO
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .investment-summary-card,
+    .investment-summary-card::after,
+    .investment-panel,
+    .investment-item,
+    .investment-movement-item,
+    .investment-movement-button,
+    .investment-edit-button,
+    .investment-delete-button,
+    .investment-modal-content,
+    .investment-modal-close,
+    .investment-modal-footer button {
+        transition: none;
+        animation: none;
+    }
+}
