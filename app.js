@@ -4864,8 +4864,8 @@ async function loadFinancialIntelligence() {
             });
         }
 
-        const currentIncome = intelligenceSum(incomes.filter(item => item.date >= currentStart));
-        const currentExpenses = intelligenceSum(expenses.filter(item => item.date >= currentStart));
+        const currentIncome = intelligenceSum(incomes.filter(item => item.date >= currentStart && item.date < nextMonthStart));
+        const currentExpenses = intelligenceSum(expenses.filter(item => item.date >= currentStart && item.date < nextMonthStart));
         const currentResult = currentIncome - currentExpenses;
         const averageIncome = completedMonths.reduce((sum, month) => sum + month.income, 0) / completedMonths.length;
         const averageExpenses = completedMonths.reduce((sum, month) => sum + month.expenses, 0) / completedMonths.length;
@@ -4947,7 +4947,7 @@ function renderIntelligenceRecommendations({ expenses, budgets, averageSurplus }
 
     const currentStart = intelligenceMonthStart(0);
     const lastCompletedStart = intelligenceMonthStart(-1);
-    const threeMonthStart = intelligenceMonthStart(-3);
+    const threeMonthStart = intelligenceMonthStart(-4);
     const currentMonthExpenses = expenses.filter(item => item.date >= currentStart);
     const lastMonthExpenses = expenses.filter(item => item.date >= lastCompletedStart && item.date < currentStart);
     const priorThreeMonths = expenses.filter(item => item.date >= threeMonthStart && item.date < lastCompletedStart);
