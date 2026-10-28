@@ -666,6 +666,7 @@ async function loadDashboard() {
             expensesResult,
             incomesResult,
             previousExpensesResult,
+            previousIncomesResult,
             evolutionResult,
             incomeCategoriesMap
         ] = await Promise.all([
@@ -680,6 +681,11 @@ async function loadDashboard() {
             ),
 
             loadPreviousExpenses(
+                previousStart,
+                start
+            ),
+
+            loadPreviousIncomes(
                 previousStart,
                 start
             ),
@@ -708,6 +714,9 @@ async function loadDashboard() {
         const previousExpenses =
             previousExpensesResult.data || [];
 
+        const previousIncomes =
+            previousIncomesResult.data || [];
+
         const evolutionMonths =
             evolutionResult.data || [];
 
@@ -734,12 +743,10 @@ async function loadDashboard() {
             );
         }
 
-        updateSummary(
-            expenses
-        );
-
-        updateMonthlyComparison(
+        updateDashboardSummary(
+            incomes,
             expenses,
+            previousIncomes,
             previousExpenses
         );
 
@@ -918,6 +925,20 @@ async function loadPreviousExpenses(
             "date",
             end
         );
+}
+
+
+// ==============================
+// CONSULTA DE ENTRADAS DO MÊS ANTERIOR
+// ==============================
+
+async function loadPreviousIncomes(start, end) {
+    return await window.supabaseClient
+        .from("incomes")
+        .select("amount")
+        .eq("user_id", currentUser.id)
+        .gte("date", start)
+        .lt("date", end);
 }
 
 
@@ -1608,617 +1629,79 @@ function renderFinancialPieEmpty(
 
 async function loadExpensesEvolutionData() {
     const months = [];
-
-    for (
-        let i = 5;
-        i >= 0;
-        i--
-    ) {
-        const date =
-            new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth() - i,
-                1
-            );
-
-        const year =
-            date.getFullYear();
-
-        const month =
-            date.getMonth();
-
-        const start =
-            `${year}-${String(
-                month + 1
-            ).padStart(
-                2,
-                "0"
-            )}-01`;
-
-        const nextMonth =
-            new Date(
-                year,
-                month + 1,
-                1
-            );
-
-        const end =
-            `${nextMonth.getFullYear()}-${String(
-                nextMonth.getMonth() + 1
-            ).padStart(
-                2,
-                "0"
-            )}-01`;
-
-        months.push({
-            date,
-            year,
-            month,
-            start,
-            end,
-            total: 0
-        });
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+        const year = date.getFullYear(), month = date.getMonth();
+        const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+        const nextMonth = new Date(year, month + 1, 1);
+        const end = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, "0")}-01`;
+        months.push({ date, year, month, start, end, income: 0, expenses: 0, result: 0, total: 0 });
     }
-
-    if (!months.length) {
-        return {
-            data: [],
-            error: null
-        };
+    if (!months.length) return { data: [], error: null };
+    const [expensesResult, incomesResult] = await Promise.all([
+        window.supabaseClient.from("expenses").select("amount, date")
+            .eq("user_id", currentUser.id).gte("date", months[0].start).lt("date", months[months.length - 1].end),
+        window.supabaseClient.from("incomes").select("amount, date")
+            .eq("user_id", currentUser.id).gte("date", months[0].start).lt("date", months[months.length - 1].end)
+    ]);
+    if (expensesResult.error || incomesResult.error) {
+        const error = expensesResult.error || incomesResult.error;
+        console.error("Erro ao carregar evolução financeira:", error);
+        return { data: months, error };
     }
-
-    const startDate =
-        months[0].start;
-
-    const endDate =
-        months[
-            months.length - 1
-        ].end;
-
-    const result =
-        await window.supabaseClient
-            .from("expenses")
-            .select(
-                "amount, date"
-            )
-            .eq(
-                "user_id",
-                currentUser.id
-            )
-            .gte(
-                "date",
-                startDate
-            )
-            .lt(
-                "date",
-                endDate
-            );
-
-    if (result.error) {
-        console.error(
-            "Erro ao carregar evolução dos gastos:",
-            result.error
-        );
-
-        return {
-            data: months,
-            error:
-                result.error
-        };
-    }
-
-    (result.data || [])
-        .forEach(
-            expense => {
-                const parts =
-                    String(
-                        expense.date || ""
-                    ).split("-");
-
-                if (
-                    parts.length !== 3
-                ) {
-                    return;
-                }
-
-                const year =
-                    Number(
-                        parts[0]
-                    );
-
-                const month =
-                    Number(
-                        parts[1]
-                    ) - 1;
-
-                const target =
-                    months.find(
-                        item =>
-                            item.year ===
-                                year &&
-                            item.month ===
-                                month
-                    );
-
-                if (target) {
-                    target.total +=
-                        Number(
-                            expense.amount ||
-                                0
-                        );
-                }
-            }
-        );
-
-    return {
-        data: months,
-        error: null
+    const addToMonth = (item, field) => {
+        const parts = String(item.date || "").split("-");
+        if (parts.length !== 3) return;
+        const target = months.find(entry => entry.year === Number(parts[0]) && entry.month === Number(parts[1]) - 1);
+        if (target) target[field] += Number(item.amount) || 0;
     };
+    (expensesResult.data || []).forEach(item => addToMonth(item, "expenses"));
+    (incomesResult.data || []).forEach(item => addToMonth(item, "income"));
+    months.forEach(month => { month.result = month.income - month.expenses; month.total = month.expenses; });
+    return { data: months, error: null };
 }
 
 
-function renderExpenseEvolution(
-    months
-) {
-    const container =
-        document.getElementById(
-            "expenseEvolutionChart"
-        );
-
-    if (!container) {
+function renderExpenseEvolution(months) {
+    const container = document.getElementById("expenseEvolutionChart");
+    if (!container) return;
+    if (!Array.isArray(months) || !months.length) {
+        container.innerHTML = '<div class="evolution-empty">Nenhuma informação disponível.</div>';
         return;
     }
-
-    if (
-        !months ||
-        !months.length
-    ) {
-        container.innerHTML = `
-            <div class="evolution-empty">
-                Nenhuma informação disponível.
-            </div>
-        `;
-
-        return;
-    }
-
-    const maxValue =
-        Math.max(
-            ...months.map(
-                month =>
-                    month.total
-            ),
-            0
-        );
-
-    const width = 900;
-    const height = 270;
-
-    const paddingLeft = 60;
-    const paddingRight = 25;
-    const paddingTop = 25;
-    const paddingBottom = 40;
-
-    const chartWidth =
-        width -
-        paddingLeft -
-        paddingRight;
-
-    const chartHeight =
-        height -
-        paddingTop -
-        paddingBottom;
-
-    const highestValue =
-        maxValue > 0
-            ? maxValue
-            : 100;
-
-    const points =
-        months.map(
-            (
-                month,
-                index
-            ) => {
-                const x =
-                    paddingLeft +
-                    (
-                        chartWidth /
-                        (
-                            months.length -
-                            1
-                        )
-                    ) *
-                    index;
-
-                const y =
-                    paddingTop +
-                    chartHeight -
-                    (
-                        month.total /
-                        highestValue
-                    ) *
-                    chartHeight;
-
-                return {
-                    ...month,
-                    x,
-                    y
-                };
-            }
-        );
-
-    const linePath =
-        points
-            .map(
-                (
-                    point,
-                    index
-                ) =>
-                    index === 0
-                        ? `M ${point.x} ${point.y}`
-                        : `L ${point.x} ${point.y}`
-            )
-            .join(" ");
-
-    const areaPath = `
-        M ${points[0].x}
-        ${height - paddingBottom}
-
-        ${points.map(
-            point =>
-                `L ${point.x} ${point.y}`
-        ).join(" ")}
-
-        L ${
-            points[
-                points.length - 1
-            ].x
-        }
-        ${height - paddingBottom}
-
-        Z
-    `;
-
-    const gridLines = 4;
-
-    const grid =
-        Array.from(
-            {
-                length:
-                    gridLines + 1
-            },
-            (
-                _,
-                index
-            ) => {
-                const ratio =
-                    index /
-                    gridLines;
-
-                const y =
-                    paddingTop +
-                    chartHeight *
-                        ratio;
-
-                const value =
-                    highestValue *
-                    (1 - ratio);
-
-                return `
-                    <line
-                        class="evolution-grid-line"
-                        x1="${paddingLeft}"
-                        y1="${y}"
-                        x2="${width - paddingRight}"
-                        y2="${y}"
-                    ></line>
-
-                    <text
-                        class="evolution-axis-label"
-                        x="0"
-                        y="${y + 4}"
-                    >
-                        ${formatCurrency(
-                            value
-                        )}
-                    </text>
-                `;
-            }
-        )
-        .join("");
-
-    const monthLabels =
-        points
-            .map(
-                point => {
-                    const label =
-                        point.date
-                            .toLocaleDateString(
-                                "pt-BR",
-                                {
-                                    month:
-                                        "short"
-                                }
-                            )
-                            .replace(
-                                ".",
-                                ""
-                            );
-
-                    return `
-                        <text
-                            class="evolution-month"
-                            x="${point.x}"
-                            y="${height - 10}"
-                            text-anchor="middle"
-                        >
-                            ${escapeHtml(
-                                label
-                            )}
-                        </text>
-                    `;
-                }
-            )
-            .join("");
-
-    const values =
-        points
-            .map(
-                point => {
-                    if (
-                        point.total <=
-                        0
-                    ) {
-                        return "";
-                    }
-
-                    return `
-                        <text
-                            class="evolution-value"
-                            x="${point.x}"
-                            y="${point.y - 12}"
-                            text-anchor="middle"
-                        >
-                            ${formatCurrency(
-                                point.total
-                            )}
-                        </text>
-                    `;
-                }
-            )
-            .join("");
-
-    const circles =
-        points
-            .map(
-                (
-                    point,
-                    index
-                ) => `
-                    <circle
-                        class="evolution-point"
-                        cx="${point.x}"
-                        cy="${point.y}"
-                        r="5"
-                        data-index="${index}"
-                    ></circle>
-                `
-            )
-            .join("");
-
+    const width = 900, height = 300;
+    const padding = { left: 74, right: 22, top: 24, bottom: 48 };
+    const chartWidth = width - padding.left - padding.right, chartHeight = height - padding.top - padding.bottom;
+    const values = months.flatMap(month => [month.income, month.expenses, month.result]);
+    const maxValue = Math.max(...values, 1), minValue = Math.min(...values, 0);
+    const range = Math.max(maxValue - minValue, 1);
+    const y = value => padding.top + ((maxValue - value) / range) * chartHeight;
+    const x = index => padding.left + (months.length === 1 ? chartWidth / 2 : chartWidth / (months.length - 1) * index);
+    const grid = Array.from({ length: 5 }, (_, index) => {
+        const value = maxValue - range * index / 4, lineY = y(value);
+        return `<line class="evolution-grid-line" x1="${padding.left}" y1="${lineY}" x2="${width - padding.right}" y2="${lineY}"></line><text class="evolution-axis-label" x="0" y="${lineY + 4}">${formatCurrency(value)}</text>`;
+    }).join("");
+    const makeSeries = (key, color, label) => {
+        const points = months.map((month, index) => ({ x: x(index), y: y(month[key]), month, value: month[key] }));
+        const path = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+        const dots = points.map(point => `<circle class="financial-evolution-point" cx="${point.x}" cy="${point.y}" r="4" fill="${color}"><title>${escapeHtml(point.month.date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" }))} · ${escapeHtml(label)}: ${escapeHtml(formatCurrency(point.value))}</title></circle>`).join("");
+        return `<path d="${path}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>${dots}`;
+    };
+    const labels = months.map((month, index) => `<text class="evolution-axis-label evolution-month-label" x="${x(index)}" y="${height - 14}" text-anchor="middle">${escapeHtml(month.date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", ""))}</text>`).join("");
     container.innerHTML = `
-        <svg
-            class="evolution-svg"
-            viewBox="0 0 ${width} ${height}"
-            preserveAspectRatio="xMidYMid meet"
-            role="img"
-            aria-label="Evolução dos gastos dos últimos seis meses"
-        >
-
-            <defs>
-                <linearGradient
-                    id="evolutionGradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                >
-                    <stop
-                        offset="0%"
-                        stop-color="#38bdf8"
-                        stop-opacity="0.35"
-                    ></stop>
-
-                    <stop
-                        offset="100%"
-                        stop-color="#38bdf8"
-                        stop-opacity="0"
-                    ></stop>
-                </linearGradient>
-            </defs>
-
+        <div class="financial-chart-legend">
+            <span><i class="legend-income"></i>Receitas</span>
+            <span><i class="legend-expenses"></i>Despesas</span>
+            <span><i class="legend-result"></i>Resultado</span>
+        </div>
+        <svg class="evolution-svg financial-evolution-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Comparação mensal entre receitas, despesas e resultado">
             ${grid}
-
-            <path
-                class="evolution-area"
-                d="${areaPath}"
-            ></path>
-
-            <path
-                class="evolution-line"
-                d="${linePath}"
-            ></path>
-
-            ${values}
-
-            ${circles}
-
-            ${monthLabels}
-
-        </svg>
-    `;
-
-    const pointElements =
-        container.querySelectorAll(
-            ".evolution-point"
-        );
-
-    pointElements.forEach(
-        point => {
-            const show =
-                event => {
-                    const index =
-                        Number(
-                            event
-                                .currentTarget
-                                .dataset
-                                .index
-                        );
-
-                    const selected =
-                        points[index];
-
-                    if (selected) {
-                        showEvolutionTooltip(
-                            container,
-                            selected
-                        );
-                    }
-                };
-
-            point.addEventListener(
-                "mouseenter",
-                show
-            );
-
-            point.addEventListener(
-                "click",
-                show
-            );
-
-            point.addEventListener(
-                "mouseleave",
-                () => {
-                    hideEvolutionTooltip(
-                        container
-                    );
-                }
-            );
-        }
-    );
-}
-
-
-// ==============================
-// TOOLTIP DA EVOLUÇÃO
-// ==============================
-
-function showEvolutionTooltip(
-    container,
-    point
-) {
-    hideEvolutionTooltip(
-        container
-    );
-
-    const tooltip =
-        document.createElement(
-            "div"
-        );
-
-    tooltip.className =
-        "evolution-tooltip active";
-
-    const monthName =
-        point.date.toLocaleDateString(
-            "pt-BR",
-            {
-                month: "long",
-                year: "numeric"
-            }
-        );
-
-    tooltip.innerHTML = `
-        <span class="evolution-tooltip-month">
-            ${escapeHtml(
-                monthName
-            )}
-        </span>
-
-        <strong class="evolution-tooltip-value">
-            ${formatCurrency(
-                point.total
-            )}
-        </strong>
-    `;
-
-    container.appendChild(
-        tooltip
-    );
-
-    const chartWidth =
-        container.clientWidth;
-
-    const svgWidth = 900;
-
-    const position =
-        (
-            point.x /
-            svgWidth
-        ) *
-        chartWidth;
-
-    const tooltipWidth =
-        tooltip.offsetWidth ||
-        120;
-
-    const halfWidth =
-        tooltipWidth / 2;
-
-    let left =
-        position -
-        halfWidth;
-
-    const maxLeft =
-        Math.max(
-            chartWidth -
-                tooltipWidth -
-                5,
-            5
-        );
-
-    left =
-        Math.min(
-            Math.max(
-                left,
-                5
-            ),
-            maxLeft
-        );
-
-    tooltip.style.left =
-        `${left}px`;
-
-    tooltip.style.top =
-        `${Math.max(
-            point.y - 70,
-            5
-        )}px`;
-}
-
-
-function hideEvolutionTooltip(
-    container
-) {
-    const tooltip =
-        container.querySelector(
-            ".evolution-tooltip"
-        );
-
-    if (tooltip) {
-        tooltip.remove();
-    }
+            <line class="financial-zero-line" x1="${padding.left}" y1="${y(0)}" x2="${width - padding.right}" y2="${y(0)}"></line>
+            ${makeSeries("income", "#34d399", "Receitas")}
+            ${makeSeries("expenses", "#38bdf8", "Despesas")}
+            ${makeSeries("result", "#a78bfa", "Resultado")}
+            ${labels}
+        </svg>`;
 }
 
 
@@ -2353,6 +1836,52 @@ function updateMonthlyComparison(
         )} | ${previousMonthName}: ${formatCurrency(
             previousTotal
         )}`;
+}
+
+
+// ==============================
+// RESUMO FINANCEIRO PRINCIPAL
+// ==============================
+
+function updateDashboardSummary(incomes, expenses, previousIncomes, previousExpenses) {
+    const incomeTotal = sumAmounts(incomes);
+    const expenseTotal = sumAmounts(expenses);
+    const result = incomeTotal - expenseTotal;
+    const margin = incomeTotal > 0 ? (result / incomeTotal) * 100 : 0;
+    const previousIncomeTotal = sumAmounts(previousIncomes);
+    const previousExpenseTotal = sumAmounts(previousExpenses);
+    const previousResult = previousIncomeTotal - previousExpenseTotal;
+    const setText = (id, value) => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    };
+    setText("monthlyIncome", formatCurrency(incomeTotal));
+    setText("monthlyExpenses", formatCurrency(expenseTotal));
+    setText("monthlyResult", formatCurrency(result));
+    setText("monthlyMargin", incomeTotal > 0 ? `${margin.toLocaleString("pt-BR", { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%` : "—");
+    setText("monthlyIncomeComparison", compareMonthlyValue(incomeTotal, previousIncomeTotal));
+    setText("monthlyExpensesComparison", compareMonthlyValue(expenseTotal, previousExpenseTotal));
+    setText("monthlyResultComparison", compareMonthlyValue(result, previousResult));
+
+    const resultCard = document.getElementById("monthlyResultCard");
+    if (resultCard) {
+        resultCard.classList.toggle("is-positive", result >= 0);
+        resultCard.classList.toggle("is-negative", result < 0);
+    }
+    const marginCard = document.getElementById("monthlyMarginCard");
+    if (marginCard) {
+        marginCard.classList.toggle("is-positive", margin >= 0);
+        marginCard.classList.toggle("is-negative", margin < 0);
+    }
+}
+
+function compareMonthlyValue(current, previous) {
+    if (previous === 0 && current === 0) return "Sem movimentação";
+    if (previous === 0) return "Sem base de comparação no mês anterior";
+    const difference = current - previous;
+    const percentage = Math.abs((difference / Math.abs(previous)) * 100);
+    const direction = difference > 0 ? "↑" : difference < 0 ? "↓" : "→";
+    return `${direction} ${formatCurrency(Math.abs(difference))} (${percentage.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%) vs. mês anterior`;
 }
 
 
@@ -3118,83 +2647,6 @@ function closeIncomeModal() {
     );
 }
 
-
-function renderIncomePieChart(incomes) {
-    const container = document.getElementById("incomePieChart");
-    const details = document.getElementById("incomePieDetails");
-
-    if (!container || !details) return;
-
-    if (!Array.isArray(incomes) || incomes.length === 0) {
-        renderFinancialPieEmpty(
-            container,
-            "Nenhuma entrada no período"
-        );
-        details.innerHTML = "";
-        return;
-    }
-
-    const grouped = {};
-
-    incomes.forEach((income) => {
-        const categoryName =
-            income.category_name ||
-            income.category?.name ||
-            income.categories?.name ||
-            "Sem categoria";
-
-        const amount = Number(income.amount) || 0;
-
-        if (amount > 0) {
-            grouped[categoryName] =
-                (grouped[categoryName] || 0) + amount;
-        }
-    });
-
-    const data = Object.entries(grouped)
-        .map(([name, amount]) => ({
-            name,
-            amount
-        }))
-        .sort((a, b) => b.amount - a.amount);
-
-    if (data.length === 0) {
-        renderFinancialPieEmpty(
-            container,
-            "Nenhuma entrada no período"
-        );
-        details.innerHTML = "";
-        return;
-    }
-
-    const total = data.reduce(
-        (sum, item) => sum + item.amount,
-        0
-    );
-
-    const colors = [
-        "#34d399",
-        "#38bdf8",
-        "#8b5cf6",
-        "#22d3ee",
-        "#f59e0b",
-        "#ec4899",
-        "#a78bfa",
-        "#14b8a6",
-        "#f97316",
-        "#22c55e"
-    ];
-
-    renderFinancialPie(
-        container,
-        details,
-        data,
-        total,
-        colors,
-        "Entradas",
-        "income"
-    );
-}
 
 // ==============================
 // SALVAR ENTRADA
