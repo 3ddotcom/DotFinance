@@ -33,6 +33,7 @@ async function initApp() {
         setupMonthNavigation();
         setupExpensesPage();
         setupIncomeModal();
+        setupFinancialIntelligence();
         setupLogout();
 
         console.time("loadCategories");
@@ -58,6 +59,7 @@ async function initApp() {
             "expenses",
             "budgets",
             "reports",
+            "intelligence",
             "settings"
         ];
 
@@ -196,6 +198,11 @@ async function changePage(page) {
             "Análise financeira"
         ],
 
+        intelligence: [
+            "Inteligência Financeira",
+            "Diagnóstico, projeções e recomendações"
+        ],
+
         settings: [
             "Configurações",
             "Configurações da conta"
@@ -234,6 +241,10 @@ async function changePage(page) {
 
     if (page === "budgets") {
         await loadBudgetsPage();
+    }
+
+    if (page === "intelligence") {
+        await loadFinancialIntelligence();
     }
 }
 
@@ -4765,6 +4776,285 @@ function setupExpensesPage() {
     }
 }
 
+
+// ==============================
+// INTELIGÊNCIA FINANCEIRA
+// ==============================
+
+function setupFinancialIntelligence() {
+    const refreshButton = document.getElementById("refreshIntelligence");
+    if (refreshButton && !refreshButton.dataset.bound) {
+        refreshButton.dataset.bound = "true";
+        refreshButton.addEventListener("click", loadFinancialIntelligence);
+    }
+}
+
+function escapeIntelligenceHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[character]);
+}
+
+function intelligenceMonthStart(offset = 0) {
+    const date = new Date();
+    date.setDate(1);
+    date.setHours(12, 0, 0, 0);
+    date.setMonth(date.getMonth() + offset);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`;
+}
+
+function intelligenceMonthLabel(dateString) {
+    const [year, month] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, 1).toLocaleDateString("pt-BR", {
+        month: "short", year: "2-digit"
+    }).replace(".", "");
+}
+
+function intelligenceSum(items) {
+    return (items || []).reduce((total, item) => total + (Number(item.amount) || 0), 0);
+}
+
+function intelligenceSetText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+}
+
+async function loadFinancialIntelligence() {
+    const status = document.getElementById("intelligenceStatus");
+    const content = document.getElementById("intelligenceContent");
+    if (!status || !content || !currentUser) return;
+
+    status.hidden = false;
+    status.textContent = "Analisando seus lançamentos...";
+    content.hidden = true;
+
+    const currentStart = intelligenceMonthStart(0);
+    const nextMonthStart = intelligenceMonthStart(1);
+    const historyStart = intelligenceMonthStart(-6);
+
+    try {
+        const [expensesResult, incomesResult, budgetsResult] = await Promise.all([
+            window.supabaseClient.from("expenses")
+                .select("amount, date, category_id, categories(name)")
+                .eq("user_id", currentUser.id).gte("date", historyStart).lt("date", nextMonthStart),
+            window.supabaseClient.from("incomes")
+                .select("amount, date")
+                .eq("user_id", currentUser.id).gte("date", historyStart).lt("date", nextMonthStart),
+            window.supabaseClient.from("budgets")
+                .select("category_id, limit_amount, month_start")
+                .eq("user_id", currentUser.id).eq("month_start", currentStart)
+        ]);
+
+        if (expensesResult.error) throw expensesResult.error;
+        if (incomesResult.error) throw incomesResult.error;
+
+        const expenses = expensesResult.data || [];
+        const incomes = incomesResult.data || [];
+        const budgets = budgetsResult.error ? [] : (budgetsResult.data || []);
+
+        const completedMonths = [];
+        for (let offset = -6; offset <= -1; offset++) {
+            const start = intelligenceMonthStart(offset);
+            const end = intelligenceMonthStart(offset + 1);
+            completedMonths.push({
+                start,
+                label: intelligenceMonthLabel(start),
+                income: intelligenceSum(incomes.filter(item => item.date >= start && item.date < end)),
+                expenses: intelligenceSum(expenses.filter(item => item.date >= start && item.date < end))
+            });
+        }
+
+        const currentIncome = intelligenceSum(incomes.filter(item => item.date >= currentStart));
+        const currentExpenses = intelligenceSum(expenses.filter(item => item.date >= currentStart));
+        const currentResult = currentIncome - currentExpenses;
+        const averageIncome = completedMonths.reduce((sum, month) => sum + month.income, 0) / completedMonths.length;
+        const averageExpenses = completedMonths.reduce((sum, month) => sum + month.expenses, 0) / completedMonths.length;
+        const averageSurplus = averageIncome - averageExpenses;
+        const projection90 = averageSurplus * 3;
+
+        intelligenceSetText("intelCurrentIncome", formatCurrency(currentIncome));
+        intelligenceSetText("intelCurrentExpenses", formatCurrency(currentExpenses));
+        intelligenceSetText("intelCurrentResult", formatCurrency(currentResult));
+        intelligenceSetText("intelProjection90", formatCurrency(projection90));
+        intelligenceSetText("intelProjectionCaption", "Resultado estimado de 90 dias, sem saldo inicial");
+
+        const resultElement = document.getElementById("intelCurrentResult");
+        if (resultElement) resultElement.classList.toggle("is-negative", currentResult < 0);
+
+        renderIntelligenceProjection(completedMonths);
+        renderIntelligenceAllocation(averageSurplus);
+        renderIntelligenceRecommendations({ expenses, budgets, averageSurplus });
+        renderIntelligenceCategories(expenses);
+
+        status.hidden = true;
+        content.hidden = false;
+    } catch (error) {
+        console.error("Erro na Inteligência Financeira:", error);
+        status.textContent = "Não foi possível analisar seus dados. Verifique sua conexão e tente atualizar novamente.";
+        status.hidden = false;
+        content.hidden = true;
+    }
+}
+
+function renderIntelligenceProjection(months) {
+    const container = document.getElementById("intelProjectionBars");
+    if (!container) return;
+    const maxValue = Math.max(1, ...months.flatMap(month => [month.income, month.expenses]));
+
+    container.innerHTML = months.map(month => {
+        const incomeWidth = Math.max(0, month.income / maxValue * 100);
+        const expenseWidth = Math.max(0, month.expenses / maxValue * 100);
+        return `<div class="intelligence-month-row">
+            <span class="intelligence-month-label">${escapeIntelligenceHtml(month.label)}</span>
+            <div class="intelligence-bar-set">
+                <div class="intelligence-bar-track"><span class="intelligence-bar income" style="width:${incomeWidth}%"></span></div>
+                <div class="intelligence-bar-track"><span class="intelligence-bar expense" style="width:${expenseWidth}%"></span></div>
+            </div>
+            <span class="intelligence-month-result ${month.income - month.expenses < 0 ? "is-negative" : ""}">${formatCurrency(month.income - month.expenses)}</span>
+        </div>`;
+    }).join("") + `<div class="intelligence-chart-legend"><span><i class="income"></i> Entradas</span><span><i class="expense"></i> Gastos</span></div>`;
+}
+
+function renderIntelligenceAllocation(monthlySurplus) {
+    const container = document.getElementById("intelAllocation");
+    const note = document.getElementById("intelAllocationNote");
+    if (!container || !note) return;
+
+    if (monthlySurplus <= 0) {
+        container.innerHTML = "";
+        note.innerHTML = '<strong>Prioridade: recuperar o equilíbrio.</strong><p>Como a média de gastos está igual ou acima das entradas, não é prudente sugerir novos investimentos. Primeiro, revise despesas variáveis e compromissos próximos.</p>';
+        return;
+    }
+
+    const allocation = [
+        { label: "Reserva financeira", percent: 50, className: "reserve" },
+        { label: "Investimentos", percent: 30, className: "invest" },
+        { label: "Objetivos e flexibilidade", percent: 20, className: "goals" }
+    ];
+
+    container.innerHTML = allocation.map(item => `<div class="intelligence-allocation-row">
+        <div class="intelligence-allocation-label"><span><i class="${item.className}"></i>${item.label}</span><strong>${formatCurrency(monthlySurplus * item.percent / 100)}</strong></div>
+        <div class="intelligence-allocation-track"><span class="${item.className}" style="width:${item.percent}%"></span></div>
+        <small>${item.percent}% do excedente médio estimado</small>
+    </div>`).join("");
+
+    note.innerHTML = '<strong>Proposta inicial, não regra fixa.</strong><p>Use esta divisão apenas sobre o excedente depois de pagar compromissos. Ajuste a reserva conforme sua segurança financeira, dívidas, prazos e tolerância a risco.</p>';
+}
+
+function renderIntelligenceRecommendations({ expenses, budgets, averageSurplus }) {
+    const container = document.getElementById("intelRecommendations");
+    if (!container) return;
+
+    const currentStart = intelligenceMonthStart(0);
+    const lastCompletedStart = intelligenceMonthStart(-1);
+    const threeMonthStart = intelligenceMonthStart(-3);
+    const currentMonthExpenses = expenses.filter(item => item.date >= currentStart);
+    const lastMonthExpenses = expenses.filter(item => item.date >= lastCompletedStart && item.date < currentStart);
+    const priorThreeMonths = expenses.filter(item => item.date >= threeMonthStart && item.date < lastCompletedStart);
+    const currentByCategory = new Map();
+    const lastByCategory = new Map();
+    const priorByCategory = new Map();
+    const categoryNames = new Map();
+
+    currentMonthExpenses.forEach(item => currentByCategory.set(String(item.category_id || "uncategorized"), (currentByCategory.get(String(item.category_id || "uncategorized")) || 0) + Number(item.amount || 0)));
+    lastMonthExpenses.forEach(item => {
+        const key = String(item.category_id || "uncategorized");
+        lastByCategory.set(key, (lastByCategory.get(key) || 0) + Number(item.amount || 0));
+        categoryNames.set(key, item.categories?.name || "Sem categoria");
+    });
+    priorThreeMonths.forEach(item => {
+        const key = String(item.category_id || "uncategorized");
+        priorByCategory.set(key, (priorByCategory.get(key) || 0) + Number(item.amount || 0));
+        categoryNames.set(key, item.categories?.name || "Sem categoria");
+    });
+    currentMonthExpenses.forEach(item => categoryNames.set(String(item.category_id || "uncategorized"), item.categories?.name || "Sem categoria"));
+
+    const recommendations = [];
+    if (averageSurplus < 0) {
+        recommendations.push({ level: "urgent", title: "Os gastos médios superam as entradas", text: `A diferença média é de ${formatCurrency(Math.abs(averageSurplus))} por mês. Antes de investir, revise despesas não essenciais e planeje os vencimentos próximos.` });
+    } else if (averageSurplus === 0) {
+        recommendations.push({ level: "attention", title: "Sua margem média está zerada", text: "Qualquer despesa inesperada pode gerar déficit. Procure liberar margem antes de assumir novos compromissos." });
+    } else {
+        recommendations.push({ level: "positive", title: "Existe excedente médio estimado", text: `A média histórica indica cerca de ${formatCurrency(averageSurplus)} por mês antes de considerar despesas futuras não registradas. Confirme os compromissos antes de distribuir esse valor.` });
+    }
+
+    const budgetSpent = new Map();
+    currentMonthExpenses.forEach(item => {
+        const key = String(item.category_id || "");
+        budgetSpent.set(key, (budgetSpent.get(key) || 0) + Number(item.amount || 0));
+    });
+    budgets.forEach(budget => {
+        const limit = Number(budget.limit_amount) || 0;
+        const spent = budgetSpent.get(String(budget.category_id)) || 0;
+        if (limit > 0 && spent >= limit) {
+            recommendations.push({ level: "urgent", title: "Orçamento de categoria ultrapassado", text: `Uma categoria já atingiu ${Math.round(spent / limit * 100)}% do limite mensal. Revise os lançamentos e avalie despesas não essenciais previstas.` });
+        } else if (limit > 0 && spent >= limit * 0.8) {
+            recommendations.push({ level: "attention", title: "Orçamento próximo do limite", text: `Uma categoria já consumiu ${Math.round(spent / limit * 100)}% do limite definido para o mês.` });
+        }
+    });
+
+    const movements = [...priorByCategory.entries()].map(([key, priorTotal]) => {
+        const priorMonthlyAverage = priorTotal / 3;
+        const lastTotal = lastByCategory.get(key) || 0;
+        return { key, priorMonthlyAverage, lastTotal, delta: lastTotal - priorMonthlyAverage };
+    }).filter(item => item.priorMonthlyAverage > 0 && item.lastTotal > item.priorMonthlyAverage * 1.2)
+      .sort((a, b) => b.delta - a.delta).slice(0, 2);
+
+    movements.forEach(item => recommendations.push({
+        level: "attention",
+        title: `Revise gastos em ${categoryNames.get(item.key) || "uma categoria"}`,
+        text: `No último mês completo, os gastos foram ${formatCurrency(item.lastTotal)}, acima da média anterior de ${formatCurrency(item.priorMonthlyAverage)}. Confirme se o aumento foi pontual ou recorrente.`
+    }));
+
+    if (recommendations.length === 1 && recommendations[0].level === "positive") {
+        recommendations.push({ level: "positive", title: "Continue registrando todas as movimentações", text: "Dados completos ajudam a identificar padrões e tornam as projeções mais úteis." });
+    }
+
+    const categoryTotals = new Map();
+    priorThreeMonths.forEach(item => {
+        const key = String(item.category_id || "uncategorized");
+        categoryTotals.set(key, (categoryTotals.get(key) || 0) + Number(item.amount || 0));
+    });
+    const potentialSavings = [...categoryTotals.values()].reduce((sum, value) => sum + value, 0) / 3 * 0.1;
+    recommendations.push({
+        level: "suggestion",
+        title: "Simule uma redução de 10% nos gastos revisáveis",
+        text: `Reduzir 10% de uma seleção de despesas que você considere não essenciais poderia liberar até ${formatCurrency(potentialSavings)} por mês, usando os últimos três meses como referência. Isto é uma simulação; nem todas as categorias são cortáveis.`
+    });
+
+    container.innerHTML = recommendations.slice(0, 6).map(item => `<article class="intelligence-recommendation ${item.level}">
+        <span class="intelligence-recommendation-icon">${item.level === "urgent" ? "!" : item.level === "positive" ? "✓" : item.level === "suggestion" ? "↗" : "•"}</span>
+        <div><h4>${escapeIntelligenceHtml(item.title)}</h4><p>${escapeIntelligenceHtml(item.text)}</p></div>
+    </article>`).join("");
+}
+
+function renderIntelligenceCategories(expenses) {
+    const container = document.getElementById("intelCategories");
+    if (!container) return;
+
+    const start = intelligenceMonthStart(-3);
+    const end = intelligenceMonthStart(0);
+    const totals = new Map();
+    const names = new Map();
+
+    expenses.filter(item => item.date >= start && item.date < end).forEach(item => {
+        const key = String(item.category_id || "uncategorized");
+        totals.set(key, (totals.get(key) || 0) + Number(item.amount || 0));
+        names.set(key, item.categories?.name || "Sem categoria");
+    });
+
+    const sorted = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+    if (!sorted.length) {
+        container.innerHTML = '<p class="intelligence-empty">Ainda não há gastos nos três meses completos anteriores para comparar categorias.</p>';
+        return;
+    }
+
+    const maxValue = Math.max(1, ...sorted.map(item => item[1]));
+    container.innerHTML = sorted.map(([key, amount]) => `<div class="intelligence-category-row">
+        <div class="intelligence-category-label"><span>${escapeIntelligenceHtml(names.get(key) || "Sem categoria")}</span><strong>${formatCurrency(amount)}</strong></div>
+        <div class="intelligence-category-track"><span style="width:${amount / maxValue * 100}%"></span></div>
+    </div>`).join("");
+}
 
 // ==============================
 // LOGOUT
