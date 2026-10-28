@@ -3411,3 +3411,146 @@ select {
 @media (max-width:1100px) { .intelligence-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:760px) { .intelligence-intro { flex-direction:column; } .intelligence-grid { grid-template-columns:1fr; } .intelligence-refresh { width:100%; } .intelligence-card { padding:16px; } }
 @media (max-width:480px) { .intelligence-metrics { grid-template-columns:1fr 1fr; gap:9px; } .intelligence-metric { padding:13px; } .intelligence-metric strong { font-size:18px; } .intelligence-month-row { grid-template-columns:43px minmax(50px,1fr); gap:8px; } .intelligence-month-result { grid-column:2; margin-top:-4px; text-align:left; } }
+
+
+/* Dashboard financeiro — indicadores principais */
+.dashboard-summary-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dashboard-summary-cards .summary-card {
+    min-height: 142px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.dashboard-summary-cards .summary-card > span {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.dashboard-summary-cards .summary-card > strong {
+    font-size: clamp(19px, 1.7vw, 27px);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.dashboard-summary-cards .summary-card > small {
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.income-summary-card {
+    border-top: 2px solid rgba(52, 211, 153, 0.75);
+}
+
+.income-summary-card > strong,
+.result-summary-card.is-positive > strong,
+.margin-summary-card.is-positive > strong {
+    color: var(--success);
+}
+
+.expense-summary-card {
+    border-top: 2px solid rgba(56, 189, 248, 0.75);
+}
+
+.expense-summary-card > strong {
+    color: var(--primary);
+}
+
+.result-summary-card {
+    border-top: 2px solid var(--success);
+}
+
+.result-summary-card.is-negative,
+.margin-summary-card.is-negative {
+    border-top-color: var(--danger);
+}
+
+.result-summary-card.is-negative > strong,
+.margin-summary-card.is-negative > strong {
+    color: var(--danger);
+}
+
+.margin-summary-card {
+    border-top: 2px solid rgba(167, 139, 250, 0.8);
+}
+
+.financial-chart-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 4px 8px 12px;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+.financial-chart-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.financial-chart-legend i {
+    width: 9px;
+    height: 9px;
+    display: inline-block;
+    border-radius: 50%;
+}
+
+.legend-income { background: #34d399; }
+.legend-expenses { background: #38bdf8; }
+.legend-result { background: #a78bfa; }
+
+.financial-evolution-svg {
+    overflow: visible;
+}
+
+.financial-zero-line {
+    stroke: rgba(255, 255, 255, 0.4);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 4;
+}
+
+.financial-evolution-point {
+    stroke: var(--background);
+    stroke-width: 2;
+    cursor: help;
+    transition: r 0.15s ease;
+}
+
+.financial-evolution-point:hover {
+    r: 6;
+}
+
+@media (max-width: 1150px) {
+    .dashboard-summary-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .dashboard-summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-summary-cards .summary-card {
+        min-height: 118px;
+        padding: 18px;
+    }
+
+    .financial-chart-legend {
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .financial-chart-legend span {
+        font-size: 10px;
+    }
+}
