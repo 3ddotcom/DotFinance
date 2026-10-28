@@ -114,6 +114,15 @@
             Relatórios
         </button>
 
+        <button
+            class="nav-item"
+            data-page="intelligence"
+            type="button"
+        >
+            <span>✦</span>
+            Inteligência Financeira
+        </button>
+
     </nav>
 
     <div class="sidebar-bottom">
@@ -903,6 +912,99 @@
 
         </div>
 
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- INTELIGÊNCIA FINANCEIRA -->
+    <!-- ========================================================= -->
+
+    <section id="intelligencePage" class="page">
+        <div class="intelligence-intro">
+            <div>
+                <span class="intelligence-eyebrow">ANÁLISE AUTOMÁTICA</span>
+                <h2>Entenda seu dinheiro. Decida melhor.</h2>
+                <p>Diagnóstico baseado nos seus lançamentos, projeções e oportunidades de economia.</p>
+            </div>
+            <button id="refreshIntelligence" class="intelligence-refresh" type="button">
+                ↻ Atualizar análise
+            </button>
+        </div>
+
+        <div id="intelligenceStatus" class="intelligence-status" role="status">
+            Preparando análise dos seus dados...
+        </div>
+
+        <div id="intelligenceContent" hidden>
+            <div class="intelligence-metrics">
+                <article class="intelligence-metric">
+                    <span>Entradas neste mês</span>
+                    <strong id="intelCurrentIncome">R$ 0,00</strong>
+                    <small>Valores registrados até hoje</small>
+                </article>
+                <article class="intelligence-metric">
+                    <span>Gastos neste mês</span>
+                    <strong id="intelCurrentExpenses">R$ 0,00</strong>
+                    <small>Valores registrados até hoje</small>
+                </article>
+                <article class="intelligence-metric">
+                    <span>Resultado do mês</span>
+                    <strong id="intelCurrentResult">R$ 0,00</strong>
+                    <small>Entradas menos gastos</small>
+                </article>
+                <article class="intelligence-metric intelligence-metric-highlight">
+                    <span>Resultado estimado em 90 dias</span>
+                    <strong id="intelProjection90">R$ 0,00</strong>
+                    <small id="intelProjectionCaption">Baseado na média dos meses completos</small>
+                </article>
+            </div>
+
+            <div class="intelligence-grid">
+                <section class="intelligence-card">
+                    <div class="intelligence-card-heading">
+                        <div>
+                            <h3>Projeção mensal</h3>
+                            <p>Comparação entre histórico e estimativa</p>
+                        </div>
+                    </div>
+                    <div id="intelProjectionBars" class="intelligence-projection-bars"></div>
+                    <p class="intelligence-footnote">A projeção é uma estimativa, não uma garantia. Meses sem lançamentos entram como zero.</p>
+                </section>
+
+                <section class="intelligence-card">
+                    <div class="intelligence-card-heading">
+                        <div>
+                            <h3>Distribuição sugerida</h3>
+                            <p>Aplicada ao excedente mensal estimado, se positivo</p>
+                        </div>
+                    </div>
+                    <div id="intelAllocation" class="intelligence-allocation"></div>
+                    <div id="intelAllocationNote" class="intelligence-note"></div>
+                </section>
+            </div>
+
+            <section class="intelligence-card intelligence-recommendations-card">
+                <div class="intelligence-card-heading">
+                    <div>
+                        <h3>Plano de ação recomendado</h3>
+                        <p>Prioridades identificadas a partir dos seus registros</p>
+                    </div>
+                </div>
+                <div id="intelRecommendations" class="intelligence-recommendations"></div>
+            </section>
+
+            <section class="intelligence-card">
+                <div class="intelligence-card-heading">
+                    <div>
+                        <h3>Maiores categorias de gastos</h3>
+                        <p>Últimos três meses completos</p>
+                    </div>
+                </div>
+                <div id="intelCategories" class="intelligence-categories"></div>
+            </section>
+
+            <p class="intelligence-disclaimer">As recomendações são estimativas para apoiar suas decisões. O sistema não altera lançamentos nem movimenta dinheiro. Confira as categorias e os compromissos futuros antes de aplicar qualquer corte ou investimento.</p>
+        </div>
     </section>
 
 
