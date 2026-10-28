@@ -234,77 +234,31 @@
 
 
         <!-- RESUMO -->
-        <div class="cards">
-
-            <article class="summary-card">
-
-                <span>
-                    Gastos do mês
-                </span>
-
-                <strong id="monthlyExpenses">
-                    R$ 0,00
-                </strong>
-
-                <small id="monthlyExpensesComparison">
-                    Sem comparação
-                </small>
-
+        <div class="cards dashboard-summary-cards">
+            <article class="summary-card income-summary-card">
+                <span>Receitas do mês</span>
+                <strong id="monthlyIncome">R$ 0,00</strong>
+                <small id="monthlyIncomeComparison">Comparativo com mês anterior</small>
             </article>
 
-
-            <article class="summary-card">
-
-                <span>
-                    Quantidade de gastos
-                </span>
-
-                <strong id="expenseCount">
-                    0
-                </strong>
-
-                <small>
-                    Lançamentos
-                </small>
-
+            <article class="summary-card expense-summary-card">
+                <span>Despesas do mês</span>
+                <strong id="monthlyExpenses">R$ 0,00</strong>
+                <small id="monthlyExpensesComparison">Comparativo com mês anterior</small>
             </article>
 
-
-            <article class="summary-card">
-
-                <span>
-                    Média por gasto
-                </span>
-
-                <strong id="averageExpense">
-                    R$ 0,00
-                </strong>
-
-                <small>
-                    Valor médio por lançamento
-                </small>
-
+            <article class="summary-card result-summary-card is-positive" id="monthlyResultCard">
+                <span>Resultado mensal</span>
+                <strong id="monthlyResult">R$ 0,00</strong>
+                <small id="monthlyResultComparison">Receitas menos despesas</small>
             </article>
 
-
-            <article class="summary-card">
-
-                <span>
-                    Maior gasto
-                </span>
-
-                <strong id="largestExpense">
-                    R$ 0,00
-                </strong>
-
-                <small id="largestExpenseName">
-                    Nenhum lançamento
-                </small>
-
+            <article class="summary-card margin-summary-card is-positive" id="monthlyMarginCard">
+                <span>Margem do mês</span>
+                <strong id="monthlyMargin">—</strong>
+                <small>Resultado dividido pelas receitas</small>
             </article>
-
         </div>
-
 
         <!-- GASTOS POR CATEGORIA -->
         <div class="dashboard-charts">
@@ -359,6 +313,7 @@
 
     <div class="category-chart">
         <div id="incomePieChart" class="pie-chart-wrapper"></div>
+        <div id="incomePieDetails" class="chart-details"></div>
     </div>
 </div>
 
@@ -373,11 +328,11 @@
                     <div>
 
                         <h2>
-                            Evolução dos gastos
+                            Receitas, despesas e resultado
                         </h2>
 
                         <p>
-                            Gastos dos últimos 6 meses
+                            Comparativo financeiro dos últimos 6 meses
                         </p>
 
                     </div>
