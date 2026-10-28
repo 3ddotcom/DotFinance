@@ -64,30 +64,38 @@ async function signOut() {
     window.location.href = "index.html";
 }
 
+// Cria ou atualiza o perfil associado ao usuário autenticado.
+// A falha no perfil não deve impedir o acesso à conta; as permissões
+// da tabela `profiles` continuam sendo controladas pelo Supabase/RLS.
 async function createProfile(user) {
-    if (!user || !user.id) {
-        console.error("Usuário inválido para criar perfil.");
+    if (!user || !user.id || !window.supabaseClient) {
         return false;
     }
 
-    const profile = {
-        id: user.id,
-        email: user.email,
-        name:
-            user.user_metadata?.name ||
-            user.user_metadata?.full_name ||
-            user.email?.split("@")[0],
-        updated_at: new Date().toISOString()
-    };
+    const email = user.email || "";
+    const name =
+        user.user_metadata?.name ||
+        user.user_metadata?.full_name ||
+        email.split("@")[0] ||
+        "Usuário";
 
     const { error } = await window.supabaseClient
         .from("profiles")
-        .upsert(profile, {
-            onConflict: "id"
-        });
+        .upsert(
+            {
+                id: user.id,
+                name,
+                email,
+                updated_at: new Date().toISOString()
+            },
+            { onConflict: "id" }
+        );
 
     if (error) {
-        console.error("Erro ao criar perfil:", error);
+        console.warn(
+            "Não foi possível criar/atualizar o perfil. Verifique a tabela profiles e suas políticas RLS:",
+            error.message
+        );
         return false;
     }
 

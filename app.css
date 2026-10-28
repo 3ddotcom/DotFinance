@@ -2967,3 +2967,376 @@ select {
         transition-duration: 0.01ms !important;
     }
 }
+
+
+/* =========================================================
+   DOT FINANCE — ORÇAMENTOS
+   ========================================================= */
+
+#budgetsPage {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Filtros */
+
+#budgetsPage .budgets-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+#budgetsPage .filter-field {
+    min-width: 0;
+}
+
+#budgetsMonthFilter {
+    width: 100%;
+    min-width: 180px;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--card-background);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 12px;
+    outline: none;
+    transition: border-color var(--transition-fast),
+                box-shadow var(--transition-fast);
+}
+
+#budgetsMonthFilter:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.08);
+}
+
+/* Cards de resumo */
+
+#budgetsPage .budget-summary,
+#budgetsPage .budgets-summary,
+#budgetsPage .budget-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+#budgetsPage .summary-card,
+#budgetsPage .expense-summary-card {
+    min-width: 0;
+}
+
+/* Área principal */
+
+#budgetsPage .panel {
+    margin-bottom: 20px;
+}
+
+#budgetsPage .panel-header {
+    flex-wrap: wrap;
+}
+
+#budgetsPage .panel-header h2 {
+    line-height: 1.4;
+}
+
+/* Formulário de orçamento */
+
+#budgetsPage #budgetForm {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-background);
+    margin-bottom: 22px;
+}
+
+#budgetsPage #budgetFormHeading {
+    grid-column: 1 / -1;
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 650;
+}
+
+#budgetsPage #budgetForm .form-field {
+    min-width: 0;
+}
+
+#budgetsPage #budgetFormMessage {
+    grid-column: 1 / -1;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#budgetsPage #budgetForm .modal-actions,
+#budgetsPage #budgetForm .budget-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+/* Lista de orçamentos */
+
+#budgetsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+#budgetsList:empty {
+    display: none;
+}
+
+#budgetsList .empty-state {
+    border: 1px dashed rgba(255, 255, 255, 0.09);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.012);
+}
+
+/* Cartões individuais — seletores preparados para a estrutura da página */
+
+#budgetsList .budget-card,
+#budgetsList .budget-item,
+#budgetsList .budget-row {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.025),
+            rgba(255, 255, 255, 0.008)
+        ),
+        var(--card-background);
+    box-shadow: var(--shadow-card);
+    transition: border-color var(--transition),
+                transform var(--transition),
+                background var(--transition);
+}
+
+#budgetsList .budget-card:hover,
+#budgetsList .budget-item:hover,
+#budgetsList .budget-row:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+}
+
+#budgetsList h3,
+#budgetsList .budget-name,
+#budgetsList .budget-title {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+#budgetsList p,
+#budgetsList .budget-meta {
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* Valores e indicadores */
+
+#budgetsList .budget-values,
+#budgetsList .budget-details {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+#budgetsList .budget-values strong,
+#budgetsList .budget-details strong {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+#budgetsList .budget-progress,
+#budgetsList .progress-track,
+#budgetsList .progress-bar-container {
+    width: 100%;
+    height: 7px;
+    margin-top: 14px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+#budgetsList .budget-progress-bar,
+#budgetsList .progress-fill,
+#budgetsList .progress-bar {
+    display: block;
+    height: 100%;
+    max-width: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #38bdf8, #22d3ee);
+    transition: width 0.35s ease;
+}
+
+#budgetsList .is-warning,
+#budgetsList .budget-warning {
+    color: var(--warning);
+}
+
+#budgetsList .is-danger,
+#budgetsList .budget-danger,
+#budgetsList .budget-exceeded {
+    color: var(--danger);
+}
+
+#budgetsList .budget-progress-bar.warning,
+#budgetsList .progress-fill.warning {
+    background: var(--warning);
+}
+
+#budgetsList .budget-progress-bar.danger,
+#budgetsList .progress-fill.danger {
+    background: var(--danger);
+}
+
+/* Botões de ação */
+
+#budgetsPage #budgetSave {
+    min-height: 40px;
+}
+
+#budgetsPage #budgetCancelEdit {
+    min-height: 40px;
+}
+
+#budgetsList .budget-actions,
+#budgetsList .budget-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+#budgetsList button {
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    transition: background var(--transition-fast),
+                border-color var(--transition-fast),
+                color var(--transition-fast);
+}
+
+#budgetsList button:hover {
+    border-color: var(--primary-border);
+    background: var(--primary-soft);
+    color: var(--text-primary);
+}
+
+/* =========================================================
+   DASHBOARD — SAUDAÇÃO
+   ========================================================= */
+
+.dashboard-greeting {
+    margin-bottom: 20px;
+    padding: 4px 0;
+}
+
+.greeting-date {
+    margin-bottom: 12px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+}
+
+.dashboard-greeting h1 {
+    margin: 0;
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 600;
+    letter-spacing: -1.4px;
+    line-height: 1.2;
+}
+
+.dashboard-greeting h1 .greeting-dot {
+    color: var(--primary);
+}
+
+.dashboard-greeting p {
+    margin: 9px 0 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Responsividade */
+
+@media (max-width: 1100px) {
+    #budgetsPage .budget-summary,
+    #budgetsPage .budgets-summary,
+    #budgetsPage .budget-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    #budgetsPage .budget-summary,
+    #budgetsPage .budgets-summary,
+    #budgetsPage .budget-cards {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    #budgetsPage #budgetForm {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 14px;
+    }
+
+    #budgetsPage #budgetFormHeading,
+    #budgetsPage #budgetFormMessage,
+    #budgetsPage #budgetForm .modal-actions,
+    #budgetsPage #budgetForm .budget-form-actions {
+        grid-column: 1;
+    }
+
+    #budgetsPage #budgetForm .modal-actions {
+        justify-content: stretch;
+    }
+
+    #budgetsPage #budgetForm .modal-actions button {
+        flex: 1;
+    }
+
+    #budgetsList .budget-card,
+    #budgetsList .budget-item,
+    #budgetsList .budget-row {
+        padding: 16px;
+    }
+
+    #budgetsList .budget-values,
+    #budgetsList .budget-details {
+        gap: 8px;
+    }
+
+}

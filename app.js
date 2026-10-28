@@ -7,6 +7,7 @@ let categories = [];
 // INICIALIZAÇÃO
 // ==============================
 
+
 async function initApp() {
     try {
         const {
@@ -26,21 +27,48 @@ async function initApp() {
         currentUser = user;
 
         setupUser();
+        updateGreeting();
         setupNavigation();
         setupModal();
         setupMonthNavigation();
         setupExpensesPage();
         setupIncomeModal();
         setupLogout();
+
+        console.time("loadCategories");
+        await loadCategories();
+        console.timeEnd("loadCategories");
+
         setupBudgets();
 
-        await loadCategories();
+        console.time("loadIncomeCategories");
         await loadIncomeCategories();
+        console.timeEnd("loadIncomeCategories");
+
+        console.time("loadExpensesCategoryFilter");
         await loadExpensesCategoryFilter();
+        console.timeEnd("loadExpensesCategoryFilter");
 
-        await loadDashboard();
+        // Escolhe a página antes de carregar os dados dela.
+        const params = new URLSearchParams(window.location.search);
+        const requestedPage = params.get("page");
 
-        changePage("dashboard");
+        const allowedPages = [
+            "dashboard",
+            "expenses",
+            "budgets",
+            "reports",
+            "settings"
+        ];
+
+        const initialPage = allowedPages.includes(requestedPage)
+            ? requestedPage
+            : "dashboard";
+
+        console.log("Página inicial escolhida:", initialPage);
+
+        // changePage carrega os dados da página selecionada.
+        await changePage(initialPage);
 
     } catch (error) {
         console.error(
@@ -48,9 +76,7 @@ async function initApp() {
             error
         );
     }
-    
 }
-
 
 // ==============================
 // USUÁRIO
@@ -132,7 +158,6 @@ async function changePage(page) {
             "active-page"
         );
     }
-    
 
     document
         .querySelectorAll(
@@ -156,6 +181,11 @@ async function changePage(page) {
             "Controle das despesas empresariais"
         ],
 
+        budgets: [
+    "Orçamentos",
+    "Defina limites mensais e acompanhe seus gastos"
+],
+
         investments: [
             "Investimentos",
             "Acompanhe seu patrimônio"
@@ -169,12 +199,7 @@ async function changePage(page) {
         settings: [
             "Configurações",
             "Configurações da conta"
-        ],
-
-        budgets: [
-        "Orçamentos",
-        "Limites mensais e akertas por categoria"
-        ],
+        ]
     };
 
     if (titles[page]) {
@@ -208,8 +233,8 @@ async function changePage(page) {
     }
 
     if (page === "budgets") {
-    await loadBudgetsPage();
-}
+        await loadBudgetsPage();
+    }
 }
 
 
@@ -889,111 +914,87 @@ async function loadPreviousExpenses(
 // GRÁFICO DE ENTRADAS
 // ==============================
 
-function renderIncomePieChart(
-    incomes
-) {
-    const container =
-        document.getElementById(
-            "incomePieChart"
-        );
 
-    const details =
-        document.getElementById(
-            "incomePieDetails"
-        );
+function renderIncomePieChart(incomes) {
+    const container = document.getElementById("incomePieChart");
+    const details = document.getElementById("incomePieDetails");
 
     if (!container || !details) {
+        console.warn("Gráfico de entradas: elementos HTML não encontrados.");
+        return;
+    }
+
+    if (!Array.isArray(incomes)) {
+        console.error("renderIncomePieChart esperava um array de entradas:", incomes);
+        renderFinancialPieEmpty(
+            container,
+            details,
+            "R$ 0,00",
+            "Entradas no mês",
+            "Não foi possível carregar as entradas."
+        );
         return;
     }
 
     const categoryTotals = {};
 
-    incomes.forEach(
-        income => {
-            const categoryId =
-                income.category_id ||
-                "uncategorized";
+    incomes.forEach(income => {
+        const categoryId = income.category_id || "uncategorized";
+        const category = income.categories;
+        const name = category?.name || "Sem categoria";
+        const icon = category?.icon || "•";
+        const amount = Number(income.amount) || 0;
 
-            const category =
-                income.categories;
-
-            const name =
-                category?.name ||
-                "Sem categoria";
-
-            const icon =
-                category?.icon ||
-                "•";
-
-            const amount =
-                Number(
-                    income.amount || 0
-                );
-
-            if (
-                !categoryTotals[
-                    categoryId
-                ]
-            ) {
-                categoryTotals[
-                    categoryId
-                ] = {
-                    name,
-                    icon,
-                    amount: 0
-                };
-            }
-
-            categoryTotals[
-                categoryId
-            ].amount += amount;
+        if (!categoryTotals[categoryId]) {
+            categoryTotals[categoryId] = {
+                name,
+                icon,
+                amount: 0
+            };
         }
+
+        categoryTotals[categoryId].amount += amount;
+    });
+
+    const categoryData = Object.values(categoryTotals)
+        .sort((a, b) => b.amount - a.amount);
+
+    const total = categoryData.reduce(
+        (sum, category) => sum + category.amount,
+        0
     );
 
-    const categoryData =
-        Object.values(
-            categoryTotals
-        ).sort(
-            (a, b) =>
-                b.amount -
-                a.amount
-        );
-
-    const total =
-        categoryData.reduce(
-            (sum, category) =>
-                sum +
-                category.amount,
-            0
-        );
-
-    if (
-        !categoryData.length ||
-        total <= 0
-    ) {
+    if (!categoryData.length || total <= 0) {
         renderFinancialPieEmpty(
             container,
             details,
             "R$ 0,00",
-            "Sem entradas",
+            "Entradas no mês",
             "Nenhuma entrada registrada neste mês."
         );
-
         return;
     }
 
     const colors = [
-        "#34d399",
+        "#54ff9f",
         "#38bdf8",
-        "#8b5cf6",
-        "#22d3ee",
-        "#f59e0b",
-        "#ec4899",
         "#a78bfa",
+        "#22d3ee",
+        "#ffd166",
+        "#ec4899",
+        "#c084fc",
         "#14b8a6",
         "#f97316",
         "#22c55e"
     ];
+
+    console.log("Diagnóstico do gráfico de entradas:", {
+        containerIsElement: container instanceof Element,
+        detailsIsElement: details instanceof Element,
+        dataIsArray: Array.isArray(categoryData),
+        total,
+        categories: categoryData.length
+    });
 
     renderFinancialPie(
         container,
@@ -1108,6 +1109,7 @@ function renderMonthlySummaryPie(
 // RENDERIZADOR GENÉRICO DE PIZZA
 // ==============================
 
+
 function renderFinancialPie(
     container,
     details,
@@ -1118,74 +1120,86 @@ function renderFinancialPie(
     chartType,
     balance = null
 ) {
-    const size = 280;
-    const center =
-        size / 2;
-
-    const radius = 105;
-    const strokeWidth = 42;
-
-    const circumference =
-        2 *
-        Math.PI *
-        radius;
-
-    let accumulated = 0;
-
-    const segments =
-        data.map(
-            (
-                item,
-                index
-            ) => {
-                const percentage =
-                    item.amount /
-                    total;
-
-                const length =
-                    percentage *
-                    circumference;
-
-                const segment = {
-                    ...item,
-
-                    percentage,
-
-                    color:
-                        colors[
-                            index %
-                            colors.length
-                        ],
-
-                    dasharray:
-                        `${length} ${
-                            circumference -
-                            length
-                        }`,
-
-                    dashoffset:
-                        accumulated
-                };
-
-                accumulated +=
-                    length;
-
-                return segment;
+    // Proteção: garante que data seja uma lista
+    if (!Array.isArray(data)) {
+        console.error(
+            "renderFinancialPie: data deveria ser um array.",
+            {
+                recebido: data,
+                chartType: chartType
             }
         );
 
+        data = [];
+    }
+
+    // Proteção: garante que existam cores
+    if (!Array.isArray(colors) || colors.length === 0) {
+        colors = [
+            "#54ff9f",
+            "#38bdf8",
+            "#a78bfa",
+            "#ffd166"
+        ];
+    }
+
+    // Normaliza valores numéricos
+    total = Number(total) || 0;
+
+    const size = 280;
+    const center = size / 2;
+    const radius = 105;
+    const strokeWidth = 42;
+
+    const circumference = 2 * Math.PI * radius;
+
+    let accumulated = 0;
+
+    const validData = data
+        .filter(item => item && typeof item === "object")
+        .map(item => ({
+            ...item,
+            name: item.name ?? "Sem categoria",
+            amount: Number(item.amount) || 0
+        }))
+        .filter(item => item.amount > 0);
+
+    const calculatedTotal = validData.reduce(
+        (sum, item) => sum + item.amount,
+        0
+    );
+
+    const denominator = total > 0 ? total : calculatedTotal;
+
+    const segments = validData.map((item, index) => {
+        const percentage =
+            denominator > 0
+                ? item.amount / denominator
+                : 0;
+
+        const length = percentage * circumference;
+
+        const segment = {
+            ...item,
+            percentage,
+            color: colors[index % colors.length],
+            dasharray: `${length} ${circumference - length}`,
+            dashoffset: accumulated
+        };
+
+        accumulated += length;
+
+        return segment;
+    });
+
     container.innerHTML = `
         <div class="pie-chart-wrapper">
-
             <svg
                 class="pie-svg"
                 viewBox="0 0 ${size} ${size}"
                 role="img"
-                aria-label="${escapeHtml(
-                    centerLabel
-                )}"
+                aria-label="${escapeHtml(String(centerLabel ?? ""))}"
             >
-
                 <circle
                     class="pie-background"
                     cx="${center}"
@@ -1193,104 +1207,69 @@ function renderFinancialPie(
                     r="${radius}"
                 ></circle>
 
-                ${segments.map(
-                    (
-                        segment,
-                        index
-                    ) => `
-                        <circle
-                            class="pie-segment financial-pie-segment"
-                            data-index="${index}"
-                            cx="${center}"
-                            cy="${center}"
-                            r="${radius}"
-                            fill="none"
-                            stroke="${segment.color}"
-                            color="${segment.color}"
-                            stroke-width="${strokeWidth}"
-                            stroke-linecap="butt"
-                            stroke-dasharray="${segment.dasharray}"
-                            stroke-dashoffset="${-segment.dashoffset}"
-                            pathLength="${circumference}"
-                            transform="
-                                rotate(
-                                    -90
-                                    ${center}
-                                    ${center}
-                                )
-                            "
-                        ></circle>
-                    `
-                ).join("")}
-
+                ${segments.map((segment, index) => `
+                    <circle
+                        class="pie-segment financial-pie-segment"
+                        data-index="${index}"
+                        cx="${center}"
+                        cy="${center}"
+                        r="${radius}"
+                        fill="none"
+                        stroke="${segment.color}"
+                        color="${segment.color}"
+                        stroke-width="${strokeWidth}"
+                        stroke-linecap="butt"
+                        stroke-dasharray="${segment.dasharray}"
+                        stroke-dashoffset="${-segment.dashoffset}"
+                        pathLength="${circumference}"
+                        transform="rotate(-90 ${center} ${center})"
+                    ></circle>
+                `).join("")}
             </svg>
 
             <div class="pie-center">
                 ${getFinancialPieCenter(
-                    total,
+                    denominator,
                     centerLabel,
                     chartType,
                     balance
                 )}
             </div>
-
         </div>
     `;
 
-    details.innerHTML =
-        segments.map(
-            (
-                segment,
-                index
-            ) => `
-                <div
-                    class="chart-detail-row financial-detail-row"
-                    data-chart-index="${index}"
-                >
+    details.innerHTML = segments.map((segment, index) => `
+        <div
+            class="chart-detail-row financial-detail-row"
+            data-chart-index="${index}"
+        >
+            <div class="chart-detail-name">
+                <span
+                    class="chart-detail-dot"
+                    style="background:${segment.color};color:${segment.color};"
+                ></span>
 
-                    <div class="chart-detail-name">
+                <span class="chart-detail-label">
+                    ${segment.icon || ""}
+                    ${escapeHtml(String(segment.name))}
+                </span>
+            </div>
 
-                        <span
-                            class="chart-detail-dot"
-                            style="
-                                background:${segment.color};
-                                color:${segment.color};
-                            "
-                        ></span>
+            <div class="chart-detail-value">
+                ${formatCurrency(segment.amount)}
 
-                        <span class="chart-detail-label">
-                            ${segment.icon || ""}
-                            ${escapeHtml(
-                                segment.name
-                            )}
-                        </span>
-
-                    </div>
-
-                    <div class="chart-detail-value">
-
-                        ${formatCurrency(
-                            segment.amount
-                        )}
-
-                        <span class="chart-detail-percentage">
-                            ${(
-                                segment.percentage *
-                                100
-                            ).toFixed(1)}%
-                        </span>
-
-                    </div>
-
-                </div>
-            `
-        ).join("");
+                <span class="chart-detail-percentage">
+                    ${(segment.percentage * 100).toFixed(1)}%
+                </span>
+            </div>
+        </div>
+    `).join("");
 
     setupFinancialPieInteraction(
         container,
         details,
         segments,
-        total,
+        denominator,
         centerLabel,
         chartType,
         balance
@@ -1312,44 +1291,37 @@ function getFinancialPieCenter(
         chartType === "monthly" &&
         balance !== null
     ) {
+        const numericBalance = Number(balance) || 0;
+
         const balanceClass =
-            balance >= 0
+            numericBalance >= 0
                 ? "financial-positive"
                 : "financial-negative";
 
         return `
             <strong class="${balanceClass}">
-                ${formatCurrency(
-                    balance
-                )}
+                ${formatCurrency(numericBalance)}
             </strong>
 
-            <span>
-                Saldo do mês
-            </span>
+            <span>Saldo do mês</span>
 
             <small>
-                ${formatCurrency(
-                    total
-                )} movimentado
+                ${formatCurrency(Number(total) || 0)} movimentado
             </small>
         `;
     }
 
     return `
         <strong>
-            ${formatCurrency(
-                total
-            )}
+            ${formatCurrency(Number(total) || 0)}
         </strong>
 
         <span>
-            ${escapeHtml(
-                centerLabel
-            )}
+            ${escapeHtml(String(centerLabel ?? ""))}
         </span>
     `;
 }
+
 
 
 // ==============================
@@ -3135,6 +3107,83 @@ function closeIncomeModal() {
     );
 }
 
+
+function renderIncomePieChart(incomes) {
+    const container = document.getElementById("incomePieChart");
+    const details = document.getElementById("incomePieDetails");
+
+    if (!container || !details) return;
+
+    if (!Array.isArray(incomes) || incomes.length === 0) {
+        renderFinancialPieEmpty(
+            container,
+            "Nenhuma entrada no período"
+        );
+        details.innerHTML = "";
+        return;
+    }
+
+    const grouped = {};
+
+    incomes.forEach((income) => {
+        const categoryName =
+            income.category_name ||
+            income.category?.name ||
+            income.categories?.name ||
+            "Sem categoria";
+
+        const amount = Number(income.amount) || 0;
+
+        if (amount > 0) {
+            grouped[categoryName] =
+                (grouped[categoryName] || 0) + amount;
+        }
+    });
+
+    const data = Object.entries(grouped)
+        .map(([name, amount]) => ({
+            name,
+            amount
+        }))
+        .sort((a, b) => b.amount - a.amount);
+
+    if (data.length === 0) {
+        renderFinancialPieEmpty(
+            container,
+            "Nenhuma entrada no período"
+        );
+        details.innerHTML = "";
+        return;
+    }
+
+    const total = data.reduce(
+        (sum, item) => sum + item.amount,
+        0
+    );
+
+    const colors = [
+        "#34d399",
+        "#38bdf8",
+        "#8b5cf6",
+        "#22d3ee",
+        "#f59e0b",
+        "#ec4899",
+        "#a78bfa",
+        "#14b8a6",
+        "#f97316",
+        "#22c55e"
+    ];
+
+    renderFinancialPie(
+        container,
+        details,
+        data,
+        total,
+        colors,
+        "Entradas",
+        "income"
+    );
+}
 
 // ==============================
 // SALVAR ENTRADA
@@ -4955,6 +5004,46 @@ function setButtonLoading(
         loading
             ? loadingText
             : normalText;
+}
+
+function updateGreeting() {
+    const hour = new Date().getHours();
+
+    const greeting = hour >= 5 && hour < 12
+        ? "Bom dia"
+        : hour >= 12 && hour < 18
+            ? "Boa tarde"
+            : "Boa noite";
+
+    const userName =
+        document.getElementById("userName")?.textContent.trim()
+        || currentUser?.email?.split("@")[0]
+        || "Usuário";
+
+    const title = document.getElementById("greetingTitle");
+    const date = document.getElementById("greetingDate");
+
+    if (title) {
+        title.replaceChildren();
+
+        title.append(
+            document.createTextNode(`${greeting}, ${userName}`)
+        );
+
+        const dot = document.createElement("span");
+        dot.className = "greeting-dot";
+        dot.textContent = ".";
+
+        title.append(dot);
+    }
+
+    if (date) {
+        date.textContent = new Intl.DateTimeFormat("pt-BR", {
+            weekday: "long",
+            day: "2-digit",
+            month: "short"
+        }).format(new Date()).replace(".", "");
+    }
 }
 
 

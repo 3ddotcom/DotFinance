@@ -63,11 +63,11 @@ loginForm.addEventListener(
                 );
 
             if (data.user) {
-
+                // Tenta garantir que o perfil exista, sem bloquear o login
+                // caso a política RLS da tabela profiles precise ser ajustada.
                 await createProfile(data.user);
 
-                window.location.href =
-                    "app.html";
+                window.location.href = "app.html";
             }
 
         } catch (error) {

@@ -461,3 +461,131 @@ hr { border-color: var(--border); }
 #incomePieDetails .financial-detail-row:nth-child(8) .chart-detail-dot { background: #ffd166 !important; color: #ffd166 !important; }
 #incomePieDetails .financial-detail-row:nth-child(9) .chart-detail-dot { background: #ffb86b !important; color: #ffb86b !important; }
 #incomePieDetails .financial-detail-row:nth-child(10) .chart-detail-dot { background: #ff718b !important; color: #ff718b !important; }
+
+
+/* =========================================================
+   INTERNAL PAGES — INVESTMENTS, IMPORT, SETTINGS AND MODALS
+   Shared visual polish only; no layout or data logic changes.
+   ========================================================= */
+
+/* Consistent typography and borders across secondary pages. */
+.page-header h1,
+.page-header h2,
+.page-header h3,
+.investment-panel h2,
+.investment-panel h3,
+.settings-card h2,
+.settings-card h3 { color: var(--text-primary); }
+.page-header p,
+.investment-panel p,
+.settings-card p { color: var(--text-muted); }
+
+/* Investments */
+.investment-summary-card,
+.investment-panel,
+.investment-chart-panel,
+.investment-portfolio-panel,
+.investment-movements-panel {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(145deg, rgba(84,255,159,.035), rgba(255,255,255,.006)), rgba(15,28,20,.88);
+    box-shadow: var(--shadow-card);
+}
+.investment-summary-card strong,
+.investment-summary-card .investment-value { font-variant-numeric: tabular-nums; }
+.investment-chart,
+#investmentChart { min-width: 0; }
+.investment-movement,
+.investment-movement-item,
+.investment-portfolio-item { border-color: var(--border); }
+.investment-movement-button,
+.investment-edit-button,
+.investment-delete-button {
+    border-radius: 9px;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.investment-modal,
+.modal-overlay {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.investment-modal-content,
+.modal-content,
+#expenseModal,
+#incomeModal {
+    border: 1px solid rgba(84,255,159,.17);
+    border-radius: var(--radius-xl);
+    background: linear-gradient(145deg, rgba(15,30,21,.98), rgba(7,15,10,.99));
+    box-shadow: var(--shadow-elevated);
+}
+
+/* Statement import */
+.import-extrato-panel,
+.extrato-panel,
+.import-panel {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(145deg, rgba(84,255,159,.025), rgba(255,255,255,.006)), rgba(15,28,20,.88);
+    box-shadow: var(--shadow-card);
+}
+.import-extrato-panel h2,
+.import-extrato-panel h3 { color: var(--text-primary); }
+.import-extrato-panel p,
+.import-extrato-panel small { color: var(--text-muted); }
+
+/* Settings */
+.settings-card,
+.settings-panel,
+.settings-section {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(145deg, rgba(84,255,159,.025), rgba(255,255,255,.006)), rgba(15,28,20,.88);
+    box-shadow: var(--shadow-card);
+}
+.settings-card label,
+.settings-panel label { color: var(--text-secondary); }
+#settingsAvatar {
+    border-color: rgba(84,255,159,.25);
+    box-shadow: 0 0 22px rgba(84,255,159,.07);
+}
+
+/* Shared button system: preserve semantic danger/success colors. */
+.primary-button,
+.primary-btn,
+button.primary-button,
+button.primary-btn {
+    border-color: rgba(132,255,184,.42);
+    background: linear-gradient(110deg, #54ff9f, #27df83);
+    color: #062111;
+    box-shadow: 0 7px 22px rgba(39,223,131,.10);
+}
+.primary-button:hover,
+.primary-btn:hover,
+button.primary-button:hover,
+button.primary-btn:hover {
+    background: linear-gradient(110deg, #7dffb4, #42f596);
+    box-shadow: 0 9px 26px rgba(39,223,131,.18);
+    transform: translateY(-1px);
+}
+.secondary-button,
+.secondary-btn,
+button.secondary-button,
+button.secondary-btn {
+    border-color: rgba(145,255,188,.14);
+    background: rgba(84,255,159,.035);
+    color: var(--text-secondary);
+}
+.danger-button,
+.delete-button { border-color: rgba(255,113,139,.25); }
+
+/* Mobile layouts: keep forms and panels inside the viewport. */
+@media (max-width: 700px) {
+    .investment-summary-card,
+    .investment-panel,
+    .settings-card,
+    .settings-panel,
+    .import-extrato-panel { min-width: 0; }
+    .investment-modal-content,
+    .modal-content { max-width: calc(100vw - 24px); }
+    .page-header { flex-wrap: wrap; }
+}

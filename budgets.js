@@ -77,109 +77,217 @@ function populateBudgetCategories() {
     if (current) select.value = current;
 }
 
+
+let budgetsLoadRequest = 0;
+
 async function loadBudgetsPage() {
     if (!currentUser) return;
+
     const list = document.getElementById("budgetsList");
     if (!list) return;
 
-    populateBudgetCategories();
-    const monthPicker = document.getElementById("budgetsMonthFilter");
-    const monthValue = monthPicker?.value || getBudgetsMonthValue(budgetsCurrentMonth);
-    const { start, end } = getBudgetsMonthRange(monthValue);
-    list.innerHTML = '<div class="budget-empty">Carregando orçamentos...</div>';
+    const requestId = ++budgetsLoadRequest;
 
-    const { data: budgets, error: budgetError } = await window.supabaseClient
-        .from("budgets")
-        .select("id, user_id, category_id, month_start, limit_amount, alert_threshold, categories(name, icon)")
-        .eq("user_id", currentUser.id)
-        .eq("month_start", start)
-        .order("created_at", { ascending: true });
+    console.time("Orçamentos: carregamento total");
 
-    if (budgetError) {
-        console.error("Erro ao carregar orçamentos:", budgetError);
-        list.innerHTML = `<div class="budget-empty">Não foi possível carregar os orçamentos. Confirme se executou o SQL no Supabase. <small>${budgetEscapeHtml(budgetError.message)}</small></div>`;
-        return;
+    try {
+        populateBudgetCategories();
+
+        const monthPicker =
+            document.getElementById("budgetsMonthFilter");
+
+        const monthValue =
+            monthPicker?.value ||
+            getBudgetsMonthValue(budgetsCurrentMonth);
+
+        const { start, end } = getBudgetsMonthRange(monthValue);
+
+        list.innerHTML =
+            '<div class="budget-empty">Carregando orçamentos...</div>';
+
+        console.time("Orçamentos: consulta budgets");
+
+        const {
+            data: budgets,
+            error: budgetError
+        } = await window.supabaseClient
+            .from("budgets")
+            .select(
+                "id, user_id, category_id, month_start, limit_amount, alert_threshold, categories(name, icon)"
+            )
+            .eq("user_id", currentUser.id)
+            .eq("month_start", start)
+            .order("created_at", { ascending: true });
+
+        console.timeEnd("Orçamentos: consulta budgets");
+
+        if (requestId !== budgetsLoadRequest) return;
+
+        if (budgetError) {
+            console.error("Erro ao carregar orçamentos:", budgetError);
+            list.innerHTML =
+                `<div class="budget-empty">Não foi possível carregar os orçamentos. ${budgetEscapeHtml(budgetError.message)}</div>`;
+            return;
+        }
+
+        console.time("Orçamentos: consulta expenses");
+
+        const {
+            data: expenses,
+            error: expenseError
+        } = await window.supabaseClient
+            .from("expenses")
+            .select("category_id, amount, date")
+            .eq("user_id", currentUser.id)
+            .gte("date", start)
+            .lt("date", end);
+
+        console.timeEnd("Orçamentos: consulta expenses");
+
+        if (requestId !== budgetsLoadRequest) return;
+
+        if (expenseError) {
+            console.error("Erro ao consultar gastos:", expenseError);
+            list.innerHTML =
+                `<div class="budget-empty">Erro ao consultar gastos: ${budgetEscapeHtml(expenseError.message)}</div>`;
+            return;
+        }
+
+        console.time("Orçamentos: renderização");
+
+        const spentByCategory = new Map();
+
+        (expenses || []).forEach(expense => {
+            const key = String(expense.category_id || "");
+            spentByCategory.set(
+                key,
+                (spentByCategory.get(key) || 0) +
+                    Number(expense.amount || 0)
+            );
+        });
+
+        budgetsCache = (budgets || []).map(budget => {
+            const spent =
+                spentByCategory.get(String(budget.category_id)) || 0;
+
+            const limit = Number(budget.limit_amount) || 0;
+            const percent = limit > 0 ? spent / limit * 100 : 0;
+
+            return {
+                ...budget,
+                spent,
+                limit,
+                percent,
+                remaining: limit - spent
+            };
+        });
+
+        const totalLimit =
+            budgetsCache.reduce((sum, item) => sum + item.limit, 0);
+
+        const totalSpent =
+            budgetsCache.reduce((sum, item) => sum + item.spent, 0);
+
+        const totalRemaining = totalLimit - totalSpent;
+
+        const overCount =
+            budgetsCache.filter(item => item.percent >= 100).length;
+
+        const alertCount =
+            budgetsCache.filter(item =>
+                item.percent >= Number(item.alert_threshold || 80) &&
+                item.percent < 100
+            ).length;
+
+        setBudgetText("budgetsTotalLimit", formatBudgetCurrency(totalLimit));
+        setBudgetText("budgetsTotalSpent", formatBudgetCurrency(totalSpent));
+        setBudgetText("budgetsTotalRemaining", formatBudgetCurrency(totalRemaining));
+        setBudgetText(
+            "budgetsAlertCount",
+            `${overCount} estourado(s) · ${alertCount} em alerta`
+        );
+
+        if (!budgetsCache.length) {
+            list.innerHTML = `
+                <div class="budget-empty">
+                    <div class="budget-empty-icon">◎</div>
+                    <strong>Nenhum orçamento neste mês</strong>
+                    <span>Defina um limite por categoria para acompanhar seus gastos e receber alertas visuais.</span>
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = budgetsCache.map(item => {
+            const category = item.categories || {};
+            const percentDisplay = Math.round(item.percent);
+            const safePercent = Math.min(100, Math.max(0, item.percent));
+
+            const state = item.percent >= 100
+                ? "over"
+                : item.percent >= Number(item.alert_threshold || 80)
+                    ? "warning"
+                    : "good";
+
+            const statusText = state === "over"
+                ? "Limite ultrapassado"
+                : state === "warning"
+                    ? "Atenção: perto do limite"
+                    : "Dentro do planejado";
+
+            const remainingText = item.remaining >= 0
+                ? `${formatBudgetCurrency(item.remaining)} restantes`
+                : `${formatBudgetCurrency(Math.abs(item.remaining))} acima do limite`;
+
+            return `
+                <article class="budget-card ${state}">
+                    <div class="budget-card-top">
+                        <div class="budget-category">
+                            <span class="budget-category-icon">${budgetEscapeHtml(category.icon || "•")}</span>
+                            <div>
+                                <h3>${budgetEscapeHtml(category.name || "Categoria")}</h3>
+                                <p>${budgetEscapeHtml(statusText)}</p>
+                            </div>
+                        </div>
+                        <div class="budget-actions">
+                            <button type="button" class="budget-icon-button"
+                                data-budget-edit="${budgetEscapeHtml(item.id)}"
+                                aria-label="Editar orçamento" title="Editar">✎</button>
+                            <button type="button" class="budget-icon-button danger"
+                                data-budget-delete="${budgetEscapeHtml(item.id)}"
+                                aria-label="Excluir orçamento" title="Excluir">×</button>
+                        </div>
+                    </div>
+                    <div class="budget-numbers">
+                        <div><span>Gasto</span><strong>${formatBudgetCurrency(item.spent)}</strong></div>
+                        <div><span>Limite mensal</span><strong>${formatBudgetCurrency(item.limit)}</strong></div>
+                    </div>
+                    <div class="budget-progress-track">
+                        <div class="budget-progress-fill" style="width:${safePercent}%"></div>
+                    </div>
+                    <div class="budget-progress-meta">
+                        <span>${percentDisplay}% utilizado</span>
+                        <span>${budgetEscapeHtml(remainingText)}</span>
+                    </div>
+                    <div class="budget-threshold">
+                        Alerta configurado em ${Number(item.alert_threshold || 80)}%
+                    </div>
+                </article>`;
+        }).join("");
+
+        console.timeEnd("Orçamentos: renderização");
+
+    } catch (error) {
+        console.error("Erro inesperado ao carregar orçamentos:", error);
+
+        if (requestId === budgetsLoadRequest) {
+            list.innerHTML =
+                '<div class="budget-empty">Ocorreu um erro ao exibir os orçamentos. Consulte o Console.</div>';
+        }
+    } finally {
+        console.timeEnd("Orçamentos: carregamento total");
     }
-
-    const { data: expenses, error: expenseError } = await window.supabaseClient
-        .from("expenses")
-        .select("category_id, amount, date")
-        .eq("user_id", currentUser.id)
-        .gte("date", start)
-        .lt("date", end);
-
-    if (expenseError) {
-        console.error("Erro ao calcular gastos dos orçamentos:", expenseError);
-        list.innerHTML = `<div class="budget-empty">Erro ao consultar gastos: ${budgetEscapeHtml(expenseError.message)}</div>`;
-        return;
-    }
-
-    const spentByCategory = new Map();
-    (expenses || []).forEach(expense => {
-        const key = String(expense.category_id || "");
-        spentByCategory.set(key, (spentByCategory.get(key) || 0) + Number(expense.amount || 0));
-    });
-
-    budgetsCache = (budgets || []).map(budget => {
-        const spent = spentByCategory.get(String(budget.category_id)) || 0;
-        const limit = Number(budget.limit_amount) || 0;
-        const percent = limit > 0 ? spent / limit * 100 : 0;
-        return { ...budget, spent, limit, percent, remaining: limit - spent };
-    });
-
-    const totalLimit = budgetsCache.reduce((sum, item) => sum + item.limit, 0);
-    const totalSpent = budgetsCache.reduce((sum, item) => sum + item.spent, 0);
-    const totalRemaining = totalLimit - totalSpent;
-    const overCount = budgetsCache.filter(item => item.percent >= 100).length;
-    const alertCount = budgetsCache.filter(item => item.percent >= Number(item.alert_threshold || 80) && item.percent < 100).length;
-
-    setBudgetText("budgetsTotalLimit", formatBudgetCurrency(totalLimit));
-    setBudgetText("budgetsTotalSpent", formatBudgetCurrency(totalSpent));
-    setBudgetText("budgetsTotalRemaining", formatBudgetCurrency(totalRemaining));
-    setBudgetText("budgetsAlertCount", `${overCount} estourado(s) · ${alertCount} em alerta`);
-
-    if (!budgetsCache.length) {
-        list.innerHTML = `<div class="budget-empty">
-            <div class="budget-empty-icon">◎</div>
-            <strong>Nenhum orçamento neste mês</strong>
-            <span>Defina um limite por categoria para acompanhar seus gastos e receber alertas visuais.</span>
-        </div>`;
-        return;
-    }
-
-    list.innerHTML = budgetsCache.map(item => {
-        const category = item.categories || {};
-        const percentDisplay = Math.round(item.percent);
-        const safePercent = Math.min(100, Math.max(0, item.percent));
-        const state = item.percent >= 100 ? "over" :
-            item.percent >= Number(item.alert_threshold || 80) ? "warning" : "good";
-        const statusText = state === "over" ? "Limite ultrapassado" :
-            state === "warning" ? "Atenção: perto do limite" : "Dentro do planejado";
-        const remainingText = item.remaining >= 0
-            ? `${formatBudgetCurrency(item.remaining)} restantes`
-            : `${formatBudgetCurrency(Math.abs(item.remaining))} acima do limite`;
-
-        return `<article class="budget-card ${state}">
-            <div class="budget-card-top">
-                <div class="budget-category">
-                    <span class="budget-category-icon">${budgetEscapeHtml(category.icon || "•")}</span>
-                    <div><h3>${budgetEscapeHtml(category.name || "Categoria")}</h3><p>${budgetEscapeHtml(statusText)}</p></div>
-                </div>
-                <div class="budget-actions">
-                    <button type="button" class="budget-icon-button" data-budget-edit="${budgetEscapeHtml(item.id)}" aria-label="Editar orçamento" title="Editar">✎</button>
-                    <button type="button" class="budget-icon-button danger" data-budget-delete="${budgetEscapeHtml(item.id)}" aria-label="Excluir orçamento" title="Excluir">×</button>
-                </div>
-            </div>
-            <div class="budget-numbers">
-                <div><span>Gasto</span><strong>${formatBudgetCurrency(item.spent)}</strong></div>
-                <div><span>Limite mensal</span><strong>${formatBudgetCurrency(item.limit)}</strong></div>
-            </div>
-            <div class="budget-progress-track"><div class="budget-progress-fill" style="width:${safePercent}%"></div></div>
-            <div class="budget-progress-meta"><span>${percentDisplay}% utilizado</span><span>${budgetEscapeHtml(remainingText)}</span></div>
-            <div class="budget-threshold">Alerta configurado em ${Number(item.alert_threshold || 80)}%</div>
-        </article>`;
-    }).join("");
 }
+
 
 function setBudgetText(id, value) {
     const element = document.getElementById(id);
